@@ -237,7 +237,6 @@
         sel.updateBoundary(e.offsetX, e.offsetY);
         ctx.lineTo(e.offsetX, e.offsetY);
         ctx.stroke();
-
       }
 	  }
 
@@ -250,11 +249,18 @@
 		    		e.preventDefault();
 		    }
 	    	var touch = e.touches[0];
-	    	var mouseEvent = new MouseEvent("mousemove", {
-			    offsetX: touch.offsetX,
-			    offsetY: touch.offsetY
-			  });
-		  	canvas.dispatchEvent(mouseEvent);
+	    	var offsetX = touch.pageX - canvas.clientX,
+	    			offsetY = touch.pageY - canvas.clientY;
+	    	if(sel.pressed()){
+	        sel.updateBoundary(offsetX, offsetY);
+	        ctx.lineTo(offsetX, offsetY);
+	        ctx.stroke();
+	      }
+	    // 	var mouseEvent = new MouseEvent("mousemove", {
+			  //   offsetX: touch.offsetX,
+			  //   offsetY: touch.offsetY
+			  // });
+		  	// canvas.dispatchEvent(mouseEvent);
 	    },
 	    'mouseup': release,
 	    'mouseout': release,
