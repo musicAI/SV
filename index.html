@@ -131,6 +131,9 @@
 	
 	
 	<script>
+	  var saved = ['passphrase', 'name', 'sid', 'score'];
+	  var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
+
 		function initUI(){
 			var button = document.createElement('button');
 		  var canvas = document.getElementById('sig-canvas');
@@ -150,11 +153,31 @@
 				    // see FileSaver.js
 				    saveAs(content, "example.zip");
 				});
-		  })
+		  });
+		  
+		  for(var i in saved){
+		  	var j = saved[i];
+		  	var p = getCookie(j);
+		  	//console.log(j, p);
+		  	if(!!p){
+			  	$('#input_' + j).val(p);
+			  }
+		  }
+		  
+		  
 
 		}
-		var formId_enc = "c5c6a414cc4c266c4ce3be82d8539a47370469440f60f45fc82294426a06b3d3U2FsdGVkX1+q1LAWY9OtYPJKrWTu8sM5MazfQiQa58emeDkCXt6ciq2j728dl/aTU10drDZ3lGSSjlLDtVLZ8A=="
-		;
+		function saveCookie(){
+			console.log('saving cookies ...');
+			for(var i in saved){
+		  	var j = saved[i];
+		  	var p = $('#input_' + j).val();
+		  	if(!!p){
+		  		setCookie(j, p, 2);
+			  }
+		  }
+		}
+		
 	  
 	  var availableTags = [
 		  "AppleScript",
@@ -186,14 +209,17 @@
 	   source: availableTags
 	  });
 	  $("#tt1").click(function(){
+
 	  	var formId = decrypt(formId_enc, $("#input_passphrase").val().toUpperCase());
 			if(!formId){
 				console.log('invalid passphrase!')
 				return;
 			}
+			saveCookie();
 	  	submit_one(formId, 'ID', 'genuine-bin', 'a really really long test', 'today');
 	  });
-	})
+	});
+	//$(window).on('unload', onExit);
   
 	</script>
 
