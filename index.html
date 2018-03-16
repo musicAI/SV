@@ -217,6 +217,7 @@
 	  // source image mouse control
 	  function release(e){
 	    var res = sel.release(e);
+	    window.blockMenuHeaderScroll = false;
 	    if(res == false){
 	      return;
 	    }
@@ -228,6 +229,7 @@
 	  	if(sel.pressing(e)){
         ctx.beginPath();
         ctx.moveTo(e.offsetX, e.offsetY);
+        window.blockMenuHeaderScroll = true;
       }
 	  }
 	  function move(e){
@@ -245,6 +247,10 @@
 	    'touchstart': start,
 	    'mousemove': move,
 	    'touchmove': function(e){
+	    	if(window.blockMenuHeaderScroll){
+	    		e.preventDefault();
+	    	}
+	    	
 	    	var touch = e.touches[0];
 	    	var mouseEvent = new MouseEvent("mousemove", {
 			    clientX: touch.clientX,
