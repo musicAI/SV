@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> Collect Data for Signature Verification </title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+
+	<script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"
+        integrity="sha384-lp4k1VRKPU9eBnPePjnJ9M2RF3i7PC30gXs70+elCVfgwLwx1tv5+ctxdtwxqZa7"
+        crossorigin="anonymous"></script>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  <script src="./utils.js"></script>
+</head>
+<body>
+  <div class="mdl-card mdl-shadow--2dp">
+	  <div class="mdl-card__title">
+	    <h2 class="mdl-card__title-text">Collect Data for Simple Signature Verification</h2>
+	  </div>
+	  <!-- <div class="mdl-card__media">
+	    <img src="photo.jpg" width="220" height="140" border="0" alt="" style="padding:20px;">
+	  </div> -->
+
+	  <div class="mdl-card__supporting-text mdl-card--border">
+	  	<form action="#">
+	  		<a> Create you genuine signature or forge others'. </a>
+			  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="password" id="input_passphrase">
+			    <label class="mdl-textfield__label" for="input_passphrase">Passphrase...</label>
+			  </div>
+			</form>
+	    
+	  </div>
+	  <div class="mdl-card__actions mdl-card--border">
+	    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+	      Clear Canvas
+	    </a>
+    <!-- <div class="mdl-layout-spacer"></div>
+    <i class="material-icons">event</i> -->
+	  </div>
+	  <div class="mdl-card__media">
+	  	<div id="container">
+		  		<canvas id="sig-canvas" width="100" height="100">
+
+		  </div>
+	  </div>
+
+		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+		  <div class="mdl-tabs__tab-bar">
+		      <a href="#genuine-panel" class="mdl-tabs__tab is-active">Genuine</a>
+		      <a href="#forged-panel" class="mdl-tabs__tab">Forged</a>
+		  </div>
+
+		  <div class="mdl-tabs__panel is-active" id="genuine-panel">
+		  	<!-- Accent-colored raised button with ripple -->
+			  <!-- Rich Tooltip -->
+				<div id="tt1" class="icon material-icons">cloud_upload</div>
+				<div class="mdl-tooltip" data-mdl-for="tt1">
+				Upload <strong>signature</strong>
+				</div>
+				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+				  Button
+				</button>
+				<!-- Colored FAB button -->
+				<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+				  <i class="material-icons">add</i>
+				</button>
+				<form action="#">
+				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				    <input class="mdl-textfield__input" type="text" id="input_name">
+				    <label class="mdl-textfield__label" for="input_name">Your Name...</label>
+				  </div>
+				</form>
+				<!-- Numeric Textfield with Floating Label -->
+				<form action="#">
+				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				    <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="input_sid">
+				    <label class="mdl-textfield__label" for="input_sid">Student ID...</label>
+				    <span class="mdl-textfield__error">Input is not a valid ID!</span>
+				  </div>
+				</form>
+				<!-- Numeric Textfield with Floating Label -->
+				<form action="#">
+				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				    <input class="mdl-textfield__input" type="text" pattern="[0-9]*(\.[0-9]*)?" id="input_score">
+				    <label class="mdl-textfield__label" for="input_score">Assignment 1 Score...</label>
+				    <span class="mdl-textfield__error">Input is not a number!</span>
+				  </div>
+				</form>
+		    <ul>
+		      <li>Eddard</li>
+		    </ul>
+		    
+		  </div>
+		  <!-- Tabs  -->
+		  <div class="mdl-tabs__panel" id="forged-panel">
+		  	<!-- Rich Tooltip -->
+				<div id="tt2" class="icon material-icons">cloud_upload</div>
+				<div class="mdl-tooltip" data-mdl-for="tt2">
+				Upload <strong>signature</strong>
+				</div>
+
+		    <ul class="mdl-list">
+		    	<li class="mdl-list__item mdl-button mdl-js-button">
+		    		<span class="mdl-list__item-primary-content">
+					    <i class="material-icons mdl-list__item-icon">person</i>
+					    Bryan Cranston
+						</span>
+		    	</li>
+		    </ul>
+		  </div>
+
+		</div> <!-- End of tabs -->
+
+		<footer class="mdl-mini-footer">
+		  <div class="mdl-mini-footer__left-section">
+		    <div class="mdl-logo">COMP3314</div>
+		    <ul class="mdl-mini-footer__link-list">
+		      <li><a href="#">Machine Learning</a></li>
+		      <li><a href="#">Instructions</a></li>
+		    </ul>
+		  </div>
+		</footer>
+  </div>  <!-- End fo cards -->
+  
+	
+	
+	<script>
+		function initUI(){
+			var button = document.createElement('button');
+		  var canvas = document.getElementById('sig-canvas');
+		  var textNode = document.createTextNode('Click Me!');
+		  button.appendChild(textNode);
+		  button.className = 'mdl-button mdl-js-button mdl-js-ripple-effect';
+		  componentHandler.upgradeElement(button);
+		  document.getElementById('container').appendChild(button);
+		  $(button).click(function(){
+		  	var zip = new JSZip();
+				zip.file("Hello.txt", "Hello World\n");
+				var img = zip.folder("images");
+				imgURL = canvas.toDataURL()
+				img.file("signature.png", imgURL.split('base64,')[1], {base64: true});
+				zip.generateAsync({type:"blob"})
+				.then(function(content) {
+				    // see FileSaver.js
+				    saveAs(content, "example.zip");
+				});
+		  })
+
+		}
+		var formId_enc = "c5c6a414cc4c266c4ce3be82d8539a47370469440f60f45fc82294426a06b3d3U2FsdGVkX1+q1LAWY9OtYPJKrWTu8sM5MazfQiQa58emeDkCXt6ciq2j728dl/aTU10drDZ3lGSSjlLDtVLZ8A=="
+		;
+	  
+	  var availableTags = [
+		  "AppleScript",
+		  "Asp",
+		  "BASIC",
+		  "C",
+		  "C++",
+		  "Clojure",
+		  "COBOL¸ß",
+		  "ColdFusion",
+		  "Erlang",
+		  "Fortran",
+		  "Groovy",
+		  "Haskell",
+		  "Java",
+		  "JavaScript",
+		  "Lisp",
+		  "Per¸ßl",
+		  "PHP",
+		  "Python",
+		  "Ruby",
+		  "Scala",
+		  "Sche¸ß"
+		 ];
+
+	$(function(){
+		initUI();
+		$("#input_name" ).autocomplete({
+	   source: availableTags
+	  });
+	  $("#tt1").click(function(){
+	  	var formId = decrypt(formId_enc, $("#input_passphrase").val().toUpperCase());
+			if(!formId){
+				console.log('invalid passphrase!')
+				return;
+			}
+	  	submit_one(formId, 'ID', 'genuine-bin', 'a really really long test', 'today');
+	  });
+	})
+  
+	</script>
+
+
+</body>
+
+</html>
