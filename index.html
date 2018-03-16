@@ -49,8 +49,11 @@
 		  		<canvas id="sig-canvas" width="200" height="100">
 		  </div>
 		  <div id="container"></div>
+		  <div class="mdl-card__supporting-text">
+	  	<a id="status"></a>
+	  </div>	
 	  </div>
-
+	  
 		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
 		  <div class="mdl-tabs__tab-bar">
 		      <a href="#genuine-panel" class="mdl-tabs__tab is-active">Genuine</a>
@@ -58,19 +61,19 @@
 		  </div>
 
 		  <div class="mdl-tabs__panel is-active" id="genuine-panel">
-		  	<!-- Accent-colored raised button with ripple -->
-			  <!-- Rich Tooltip -->
-				<div id="tt1" class="icon material-icons">cloud_upload</div>
-				<div class="mdl-tooltip" data-mdl-for="tt1">
-				Upload <strong>signature</strong>
-				</div>
-				<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-				  Button
-				</button>
-				<!-- Colored FAB button -->
+		  	<!-- Colored FAB button -->
 				<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
 				  <i class="material-icons">add</i>
 				</button>
+		  	<!-- Accent-colored raised button with ripple -->
+				<button id="button_upload" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+					<!-- Rich Tooltip -->
+					<div id="tt1" class="icon material-icons">cloud_upload</div>
+					<div class="mdl-tooltip" data-mdl-for="tt1">
+					Upload <strong>signature</strong>
+					</div>
+				</button>
+				
 				<form action="#">
 				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 				    <input class="mdl-textfield__input" type="text" id="input_name">
@@ -248,19 +251,13 @@
 	    	if(window.blockMenuHeaderScroll){
 		    		e.preventDefault();
 		    }
-	    	var touch = e.touches[0];
-	    	var offsetX = touch.pageX - canvas.clientX,
-	    			offsetY = touch.pageY - canvas.clientY;
-	    	if(sel.pressed()){
-	        sel.updateBoundary(offsetX, offsetY);
-	        ctx.lineTo(offsetX, offsetY);
-	        ctx.stroke();
-	      }
-	    // 	var mouseEvent = new MouseEvent("mousemove", {
-			  //   offsetX: touch.offsetX,
-			  //   offsetY: touch.offsetY
-			  // });
-		  	// canvas.dispatchEvent(mouseEvent);
+	    	var touch = e.targetTouches[0];
+	     //$("#status").html([touch.clientX>>0, touch.pageX>>0, touch.clientY>>0, touch.pageY>>0].join(','));
+	    	var mouseEvent = new MouseEvent("mousemove", {
+			    clientX: touch.pageX,
+			    clientY: touch.pageY
+			  });
+		  	canvas.dispatchEvent(mouseEvent);
 	    },
 	    'mouseup': release,
 	    'mouseout': release,
@@ -273,14 +270,16 @@
 	  $("#button_reset").click(function(){
 	  	ctx.clearRect(0,0, canvas.width, canvas.height);
 	  })
-	  $("#tt1").click(function(){
+	  $("#button_upload").click(function(){
 
 	  	var formId = decrypt(formId_enc, $("#input_passphrase").val().toUpperCase());
 			if(!formId){
 				console.log('invalid passphrase!')
+				$("#status").html('invalid passphrase!')
 				return;
 			}
 			saveCookie();
+			$("#status").html('Submitting data ...')
 	  	submit_one(formId, 'ID', 'genuine-bin', 'a really really long test', 'today');
 	  });
 	});
