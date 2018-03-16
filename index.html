@@ -235,7 +235,6 @@
 	  function move(e){
 	  	if(sel.pressed()){
         sel.updateBoundary(e.offsetX, e.offsetY);
-
         ctx.lineTo(e.offsetX, e.offsetY);
         ctx.stroke();
 
@@ -248,13 +247,12 @@
 	    'mousemove': move,
 	    'touchmove': function(e){
 	    	if(window.blockMenuHeaderScroll){
-	    		e.preventDefault();
-	    	}
-	    	
+		    		e.preventDefault();
+		    }
 	    	var touch = e.touches[0];
 	    	var mouseEvent = new MouseEvent("mousemove", {
-			    clientX: touch.clientX,
-			    clientY: touch.clientY
+			    offsetX: touch.offsetX,
+			    offsetY: touch.offsetY
 			  });
 		  	canvas.dispatchEvent(mouseEvent);
 	    },
