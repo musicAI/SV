@@ -224,27 +224,30 @@
 	    //ctx.stroke();
 	    ctx.closePath();
 	  }
+	  function start(e){
+	  	if(sel.pressing(e)){
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+      }
+	  }
+	  function move(e){
+	  	if(sel.pressed()){
+        sel.updateBoundary(e.offsetX, e.offsetY);
+
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+
+      }
+	  }
 
 	  register(canvas, {
-	    'mousedown': function(e){
-	      if(sel.pressing(e)){
-	        ctx.beginPath();
-	        ctx.moveTo(e.offsetX, e.offsetY);
-	        
-	      }
-
-	    },
-	    'mousemove': function(e){
-	      if(sel.pressed()){
-	        sel.updateBoundary(e.offsetX, e.offsetY);
-
-	        ctx.lineTo(e.offsetX, e.offsetY);
-	        ctx.stroke();
-
-	      }
-	    },
+	    'mousedown': start,
+	    'touchstart': start,
+	    'mousemove': move,
+	    'touchmove': move,
 	    'mouseup': release,
 	    'mouseout': release,
+	    'touchend': release,
 	    'dblclick': function(e){
 	      //console.log(e.offsetX, e.offsetY);
 	      ctx.clearRect(0, 0, canvas.width, canvas.height);
