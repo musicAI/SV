@@ -37,17 +37,18 @@
 	    
 	  </div>
 	  <div class="mdl-card__actions mdl-card--border">
-	    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+	    <a id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
 	      Clear Canvas
 	    </a>
     <!-- <div class="mdl-layout-spacer"></div>
     <i class="material-icons">event</i> -->
 	  </div>
-	  <div class="mdl-card__media">
-	  	<div id="container">
-		  		<canvas id="sig-canvas" width="100" height="100">
-
+	  <div class="mdl-card__supporting-text">
+	  	
+	  	<div id="canvas_container" style="border: 1pt solid black; width: 200px; height: 100px;">
+		  		<canvas id="sig-canvas" width="200" height="100">
 		  </div>
+		  <div id="container"></div>
 	  </div>
 
 		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
@@ -133,11 +134,14 @@
 	<script>
 	  var saved = ['passphrase', 'name', 'sid', 'score'];
 	  var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
+	  var canvas = document.getElementById('sig-canvas');
+		  var ctx = canvas.getContext('2d');
 
 		function initUI(){
 			var button = document.createElement('button');
-		  var canvas = document.getElementById('sig-canvas');
-		  var textNode = document.createTextNode('Click Me!');
+		  
+
+		  var textNode = document.createTextNode('Save Signature!');
 		  button.appendChild(textNode);
 		  button.className = 'mdl-button mdl-js-button mdl-js-ripple-effect';
 		  componentHandler.upgradeElement(button);
@@ -208,6 +212,47 @@
 		$("#input_name" ).autocomplete({
 	   source: availableTags
 	  });
+	  var sel = selector();
+	  ctx.strokeStyle = 'blue';
+	  // source image mouse control
+	  function release(e){
+	    var res = sel.release(e);
+	    if(res == false){
+	      return;
+	    }
+	    //ctx.lineTo(res.boundary[0].x, res.boundary[0].y);
+	    //ctx.stroke();
+	    ctx.closePath();
+	  }
+
+	  register(canvas, {
+	    'mousedown': function(e){
+	      if(sel.pressing(e)){
+	        ctx.beginPath();
+	        ctx.moveTo(e.offsetX, e.offsetY);
+	        
+	      }
+
+	    },
+	    'mousemove': function(e){
+	      if(sel.pressed()){
+	        sel.updateBoundary(e.offsetX, e.offsetY);
+
+	        ctx.lineTo(e.offsetX, e.offsetY);
+	        ctx.stroke();
+
+	      }
+	    },
+	    'mouseup': release,
+	    'mouseout': release,
+	    'dblclick': function(e){
+	      //console.log(e.offsetX, e.offsetY);
+	      ctx.clearRect(0, 0, canvas.width, canvas.height);
+	    }
+	  });
+	  $("#button_reset").click(function(){
+	  	ctx.clearRect(0,0, canvas.width, canvas.height);
+	  })
 	  $("#tt1").click(function(){
 
 	  	var formId = decrypt(formId_enc, $("#input_passphrase").val().toUpperCase());
