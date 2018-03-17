@@ -96,9 +96,6 @@
 				    <span class="mdl-textfield__error">Input is not a number!</span>
 				  </div>
 				</form>
-		    <ul>
-		      <li>Eddard</li>
-		    </ul>
 		    
 		  </div>
 		  <!-- Tabs  -->
@@ -151,9 +148,9 @@
 		  document.getElementById('container').appendChild(button);
 		  $(button).click(function(){
 		  	var zip = new JSZip();
-				zip.file("Hello.txt", "Hello World\n");
+				zip.file("Readme.txt", "Image stored in images/\n");
 				var img = zip.folder("images");
-				imgURL = canvas.toDataURL()
+				var imgURL = canvas.toDataURL()
 				img.file("signature.png", imgURL.split('base64,')[1], {base64: true});
 				zip.generateAsync({type:"blob"})
 				.then(function(content) {
@@ -184,37 +181,29 @@
 			  }
 		  }
 		}
+
+		var name_list = {};
 		
 	  
-	  var availableTags = [
-		  "AppleScript",
-		  "Asp",
-		  "BASIC",
-		  "C",
-		  "C++",
-		  "Clojure",
-		  "COBOL¸ß",
-		  "ColdFusion",
-		  "Erlang",
-		  "Fortran",
-		  "Groovy",
-		  "Haskell",
-		  "Java",
-		  "JavaScript",
-		  "Lisp",
-		  "Per¸ßl",
-		  "PHP",
-		  "Python",
-		  "Ruby",
-		  "Scala",
-		  "Sche¸ß"
-		 ];
+	 
 
 	$(function(){
 		initUI();
-		$("#input_name" ).autocomplete({
-	   source: availableTags
-	  });
+		$("#input_name").focus(function(){
+			var passphrase = $("#input_passphrase").val().toUpperCase();
+			if(passphrase && !(passphrase in name_list)){
+				decrypt_secret('info.json', passphrase, function(info){
+					console.log('students info loaded');
+					name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
+					$("#input_name").autocomplete({
+						source: name_list[passphrase]
+					})
+				})
+			}
+		})
+		// $("#input_name" ).autocomplete({
+	 //   source: availableTags
+	 //  });
 	  var sel = selector();
 	  ctx.strokeStyle = 'blue';
 	  // source image mouse control
@@ -279,8 +268,12 @@
 				return;
 			}
 			saveCookie();
-			$("#status").html('Submitting data ...')
-	  	submit_one(formId, 'ID', 'genuine-bin', 'a really really long test', 'today');
+			$("#status").html('Submitting data ...');
+			var image_data = canvas.toDataURL();
+			console.log('data length', image_data.length);
+			var d = new Date();
+	    var stamp = d.toUTCString();
+	  	submit_one(formId, 'ID', 'genuine-bin', image_data, stamp);
 	  });
 	});
 	//$(window).on('unload', onExit);

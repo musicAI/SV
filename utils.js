@@ -62,29 +62,28 @@ function submit_one(formId, ID,TYPE,DATA,STAMP) {
 	
 	var posturl = 'https://docs.google.com/forms/d/e/' + formId + '/formResponse';
 	var xhr = new XMLHttpRequest();
-  
-  xhr.onreadystatechange = function() {
-    if (this.readyState == XMLHttpRequest.DONE){
-      if(this.status == 200 || this.status == 0){
-        console.log(DATA);
-      } else{
-        console.log('Not successful!', this.status, key, value, id);
-      }
-    }
-  };
+	xhr.onreadystatechange = function() {
+	    if (this.readyState == XMLHttpRequest.DONE){
+			if(this.status == 200 || this.status == 0){
+		        console.log('sent', DATA.length);
+			} else{
+			    console.log('Not successful!', this.status, key, value, id);
+			}
+	    }
+	};
 
-  xhr.open("POST", posturl, true);
-  data = {};
-  data[entry.ID] = ID;
-  data[entry.TYPE] = TYPE;
-  data[entry.DATA] = DATA;
-  data[entry.STAMP] = STAMP;
-  data['submit'] = 'Submit';
-  var fd = new FormData();
-  for(var item in data){
-    fd.append(item, data[item]);
-  }
-  xhr.send(fd);
+	xhr.open("POST", posturl, true);
+	data = {};
+	data[entry.ID] = ID;
+	data[entry.TYPE] = TYPE;
+	data[entry.DATA] = DATA;
+	data[entry.STAMP] = STAMP;
+	data['submit'] = 'Submit';
+	var fd = new FormData();
+	for(var item in data){
+		fd.append(item, data[item]);
+	}
+	xhr.send(fd);
 }
 
 function register(el, evts){
@@ -172,5 +171,32 @@ function selector(){
     release: release,
     updateBoundary: updateBoundary
   }
+
+}
+
+function encrypt_secret(json_url, passphrase){
+	get_json(json_url, function(data){
+		var content = JSON.stringify({"secret":encrypt(JSON.stringify(data), passphrase)});
+		//console.log(content);
+		var blob = new Blob([content], {type:'text/plain;charset=utf-8'})
+		saveAs(blob, json_url.split('/').pop()+'.json');
+	})
+}
+
+function decrypt_secret(json_url, passphrase, handle){
+	get_json(json_url, function(data){
+		//console.log(data)
+		var content = decrypt(data['secret'], passphrase);
+		if(!!content){
+			try{
+				var obj = JSON.parse(content);
+				handle(obj);
+			}catch(e){
+				console.log(e);
+			}
+		}else{
+			console.log('invalid passphrase!')
+		}
+	});
 
 }
