@@ -36,23 +36,30 @@
 			</form>
 	    
 	  </div>
+	  
+	  <div class="mdl-card__supporting-text">
+	  	<div id="canvas_container" style="border: 1pt solid black; width: 200px; height: 100px;">
+		  		<canvas id="sig-canvas" width="200" height="100">
+		  </div>
+		  
+	  </div>
 	  <div class="mdl-card__actions mdl-card--border">
+	  	<div id="container"></div>
 	    <a id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
 	      Clear Canvas
 	    </a>
+	    <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+		  <i class="icon material-icons">add</i>
+		  <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
+			Add <strong>canvas</strong>
+			</div>
+		</button>
     <!-- <div class="mdl-layout-spacer"></div>
     <i class="material-icons">event</i> -->
 	  </div>
 	  <div class="mdl-card__supporting-text">
-	  	
-	  	<div id="canvas_container" style="border: 1pt solid black; width: 200px; height: 100px;">
-		  		<canvas id="sig-canvas" width="200" height="100">
-		  </div>
-		  <div id="container"></div>
-		  <div class="mdl-card__supporting-text">
 	  	<a id="status"></a>
 	  </div>	
-	  </div>
 	  
 		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
 		  <div class="mdl-tabs__tab-bar">
@@ -62,34 +69,36 @@
 
 		  <div class="mdl-tabs__panel is-active" id="genuine-panel">
 		  	<!-- Colored FAB button -->
-				<button class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-				  <i class="material-icons">add</i>
-				</button>
+				
 		  	<!-- Accent-colored raised button with ripple -->
-				<button id="button_upload" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+				<button id="button_upload_genuine" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 					<!-- Rich Tooltip -->
-					<div id="tt1" class="icon material-icons">cloud_upload</div>
-					<div class="mdl-tooltip" data-mdl-for="tt1">
+					<div class="icon material-icons">cloud_upload</div>
+					<div class="mdl-tooltip" data-mdl-for="button_upload_genuine">
 					Upload <strong>signature</strong>
 					</div>
 				</button>
-				
+					
 				<form action="#">
+				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				  	<a> Fill in your info below </a>
+				  </div>
+
 				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 				    <input class="mdl-textfield__input" type="text" id="input_name">
 				    <label class="mdl-textfield__label" for="input_name">Your Name...</label>
 				  </div>
-				</form>
+				<!-- </form> -->
 				<!-- Numeric Textfield with Floating Label -->
-				<form action="#">
+				<!-- <form action="#"> -->
 				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 				    <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="input_sid">
 				    <label class="mdl-textfield__label" for="input_sid">Student ID...</label>
 				    <span class="mdl-textfield__error">Input is not a valid ID!</span>
 				  </div>
-				</form>
+				<!-- </form> -->
 				<!-- Numeric Textfield with Floating Label -->
-				<form action="#">
+				<!-- <form action="#"> -->
 				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 				    <input class="mdl-textfield__input" type="text" pattern="[0-9]*(\.[0-9]*)?" id="input_score">
 				    <label class="mdl-textfield__label" for="input_score">Assignment 1 Score...</label>
@@ -100,20 +109,31 @@
 		  </div>
 		  <!-- Tabs  -->
 		  <div class="mdl-tabs__panel" id="forged-panel">
+		  	<button id="button_upload_forged" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 		  	<!-- Rich Tooltip -->
-				<div id="tt2" class="icon material-icons">cloud_upload</div>
-				<div class="mdl-tooltip" data-mdl-for="tt2">
+				<div class="icon material-icons">cloud_upload</div>
+				<div class="mdl-tooltip" data-mdl-for="button_upload_forged">
 				Upload <strong>signature</strong>
 				</div>
-
-		    <ul class="mdl-list">
+			</button>
+			
+			<form action="#">
+				<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				  	<a> Select a signature to forge </a>
+				</div>
+				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				    <input class="mdl-textfield__input" type="text" id="input_target">
+				    <label class="mdl-textfield__label" for="input_target">Target Name...</label>
+				  </div>
+			</form>
+		    <!-- <ul class="mdl-list">
 		    	<li class="mdl-list__item mdl-button mdl-js-button">
 		    		<span class="mdl-list__item-primary-content">
 					    <i class="material-icons mdl-list__item-icon">person</i>
 					    Bryan Cranston
-						</span>
+					</span>
 		    	</li>
-		    </ul>
+		    </ul> -->
 		  </div>
 
 		</div> <!-- End of tabs -->
@@ -167,10 +187,9 @@
 			  	$('#input_' + j).val(p);
 			  }
 		  }
-		  
-		  
 
 		}
+
 		function saveCookie(){
 			console.log('saving cookies ...');
 			for(var i in saved){
@@ -182,11 +201,12 @@
 		  }
 		}
 
+		var sel = selector();
+	  	ctx.strokeStyle = 'blue';
+
 		var name_list = {};
 		
-	  
-	 
-
+		
 	$(function(){
 		initUI();
 		$("#input_name").focus(function(){
@@ -197,15 +217,15 @@
 					name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
 					$("#input_name").autocomplete({
 						source: name_list[passphrase]
-					})
+					});
+					$("#input_target").autocomplete({
+						source: name_list[passphrase]
+					});
 				})
 			}
 		})
-		// $("#input_name" ).autocomplete({
-	 //   source: availableTags
-	 //  });
-	  var sel = selector();
-	  ctx.strokeStyle = 'blue';
+		
+	  
 	  // source image mouse control
 	  function release(e){
 	    var res = sel.release(e);
@@ -226,14 +246,22 @@
 	  }
 	  function move(e){
 	  	if(sel.pressed()){
-        sel.updateBoundary(e.offsetX, e.offsetY);
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-      }
+	        sel.updateBoundary(e.offsetX, e.offsetY);
+	        ctx.lineTo(e.offsetX, e.offsetY);
+	        ctx.stroke();
+	    }
+	  }
+	  function reset(){
+	  	console.log(sel.signature())
+	  	sel.reset();
+	  	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	  }
 
 	  register(canvas, {
-	    'mousedown': start,
+	    'mousedown': function(e){
+	    	start(e);
+	    	move(e);
+	    },
 	    'touchstart': start,
 	    'mousemove': move,
 	    'touchmove': function(e){
@@ -253,15 +281,14 @@
 	    'touchend': release,
 	    'dblclick': function(e){
 	      //console.log(e.offsetX, e.offsetY);
-	      ctx.clearRect(0, 0, canvas.width, canvas.height);
+	      reset();
 	    }
 	  });
-	  $("#button_reset").click(function(){
-	  	ctx.clearRect(0,0, canvas.width, canvas.height);
-	  })
-	  $("#button_upload").click(function(){
+	  $("#button_reset").click(reset);
+	  $("#button_upload_genuine").click(function(){
+	  	var passphrase = $("#input_passphrase").val().toUpperCase();
 
-	  	var formId = decrypt(formId_enc, $("#input_passphrase").val().toUpperCase());
+	  	var formId = decrypt(formId_enc, passphrase);
 			if(!formId){
 				console.log('invalid passphrase!')
 				$("#status").html('invalid passphrase!')
@@ -273,7 +300,15 @@
 			console.log('data length', image_data.length);
 			var d = new Date();
 	    var stamp = d.toUTCString();
-	  	submit_one(formId, 'ID', 'genuine-bin', image_data, stamp);
+	    var score = $('#input_score').val();
+	    if(!score){
+	    	score = 0;
+	    }
+	    var id = [$('#input_name').val(), $('#input_sid').val(), 
+	      (parseFloat(score)*100)>>0].join(';');
+	    var id = encrypt(id, passphrase);
+
+	  	submit_one(formId, id, 'genuine-dataurl', image_data, stamp);
 	  });
 	});
 	//$(window).on('unload', onExit);

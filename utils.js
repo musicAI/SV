@@ -94,6 +94,7 @@ function register(el, evts){
 
 function selector(){
 	var pressed = false;
+	var signature = [];
 	var boundary = [];
 	var boxP1 = {};
 	var boxP2 = {};
@@ -158,6 +159,8 @@ function selector(){
     //updateBoundary(boundary[0].x, boundary[0].y);
     pressed = false;
 
+    signature.push(boundary);
+
     return {
       boundary: boundary,
       boxP1: boxP1,
@@ -165,11 +168,16 @@ function selector(){
     }
 
   }
+  function reset(){
+    	signature = [];
+  }
   return {
     pressing: pressing,
     pressed: function(){return pressed},
     release: release,
-    updateBoundary: updateBoundary
+    updateBoundary: updateBoundary,
+    reset: reset,
+    signature: function(){return signature}
   }
 
 }
