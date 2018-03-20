@@ -15,7 +15,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-  <script src="./utils.js"></script>
+  <script src="utils.js"></script>
+  <script src="info.js"></script>
 </head>
 <body>
   <div class="mdl-card mdl-shadow--2dp">
@@ -28,61 +29,33 @@
 
 	  <div class="mdl-card__supporting-text mdl-card--border">
 	  	<form action="#">
-	  		<a> Create you genuine signature or forge others'. </a>
-			  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-			    <input class="mdl-textfield__input" type="password" id="input_passphrase">
-			    <label class="mdl-textfield__label" for="input_passphrase">Passphrase...</label>
-			  </div>
-			</form>
-	    
-	  </div>
-	  
-	  <div class="mdl-card__supporting-text">
-	  	<div id="canvas_container" style="border: 1pt solid black; width: 200px; height: 100px;">
-		  		<canvas id="sig-canvas" width="200" height="100">
+	  	  <a> Input the passphrase posted on moodle. </a>
+		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+		    <input class="mdl-textfield__input" type="password" id="input_passphrase">
+		    <label class="mdl-textfield__label" for="input_passphrase">Passphrase...</label>
 		  </div>
-		  
+		  <a> Create your genuine signature or forge others'. </a>
+		</form>
 	  </div>
-	  <div class="mdl-card__actions mdl-card--border">
-	  	<div id="container"></div>
-	    <a id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-	      Clear Canvas
-	    </a>
-	    <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-		  <i class="icon material-icons">add</i>
-		  <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
-			Add <strong>canvas</strong>
-			</div>
-		</button>
-    <!-- <div class="mdl-layout-spacer"></div>
-    <i class="material-icons">event</i> -->
-	  </div>
-	  <div class="mdl-card__supporting-text">
-	  	<a id="status"></a>
-	  </div>	
 	  
-		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+	  
+	  
+		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect mdl-card--border">
 		  <div class="mdl-tabs__tab-bar">
 		      <a href="#genuine-panel" class="mdl-tabs__tab is-active">Genuine</a>
 		      <a href="#forged-panel" class="mdl-tabs__tab">Forged</a>
 		  </div>
 
 		  <div class="mdl-tabs__panel is-active" id="genuine-panel">
+		  	<div class="mdl-card__supporting-text mdl-card--border">
 		  	<!-- Colored FAB button -->
 				
-		  	<!-- Accent-colored raised button with ripple -->
-				<button id="button_upload_genuine" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-					<!-- Rich Tooltip -->
-					<div class="icon material-icons">cloud_upload</div>
-					<div class="mdl-tooltip" data-mdl-for="button_upload_genuine">
-					Upload <strong>signature</strong>
-					</div>
-				</button>
+		  	
 					
 				<form action="#">
-				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				  <!-- <div class=""> -->
 				  	<a> Fill in your info below </a>
-				  </div>
+				  <!-- </div> -->
 
 				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 				    <input class="mdl-textfield__input" type="text" id="input_name">
@@ -105,26 +78,29 @@
 				    <span class="mdl-textfield__error">Input is not a number!</span>
 				  </div>
 				</form>
+				<!-- Accent-colored raised button with ripple -->
+				<button id="button_upload_genuine" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+					<!-- Rich Tooltip -->
+					<div class="icon material-icons">cloud_upload</div>
+					<div class="mdl-tooltip" data-mdl-for="button_upload_genuine">
+					Upload <strong>signature</strong>
+					</div>
+				</button>
+			</div>
 		    
 		  </div>
-		  <!-- Tabs  -->
+		  
 		  <div class="mdl-tabs__panel" id="forged-panel">
-		  	<button id="button_upload_forged" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-		  	<!-- Rich Tooltip -->
-				<div class="icon material-icons">cloud_upload</div>
-				<div class="mdl-tooltip" data-mdl-for="button_upload_forged">
-				Upload <strong>signature</strong>
-				</div>
-			</button>
+		  	<div class="mdl-card__supporting-text mdl-card--border">
+		  	
 			
 			<form action="#">
-				<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-				  	<a> Select a signature to forge </a>
-				</div>
-				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-				    <input class="mdl-textfield__input" type="text" id="input_target">
-				    <label class="mdl-textfield__label" for="input_target">Target Name...</label>
-				  </div>
+			  
+			  <a> Select a signature to forge </a>
+			  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+			    <input class="mdl-textfield__input" type="text" id="input_target">
+			    <label class="mdl-textfield__label" for="input_target">Target Name...</label>
+			  </div>
 			</form>
 		    <!-- <ul class="mdl-list">
 		    	<li class="mdl-list__item mdl-button mdl-js-button">
@@ -134,9 +110,43 @@
 					</span>
 		    	</li>
 		    </ul> -->
+		    <button id="button_upload_forged" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+		  	<!-- Rich Tooltip -->
+				<div class="icon material-icons">cloud_upload</div>
+				<div class="mdl-tooltip" data-mdl-for="button_upload_forged">
+				Upload <strong>signature</strong>
+				</div>
+			</button>
+			</div>
+
 		  </div>
 
 		</div> <!-- End of tabs -->
+
+		<div class="mdl-card__supporting-text">
+	  	
+	  	<div id="canvas_container" style="border: 1pt solid black; width: 200px; height: 100px;">
+		  		<canvas id="sig-canvas" width="200" height="100">
+		  </div>
+		  
+	  </div>
+	  <div class="mdl-card__actions">
+	  	<div id="container"></div>
+	    <a id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+	      Clear Canvas
+	    </a>
+	    <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+		  <i class="icon material-icons">add</i>
+		  <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
+			Add <strong>canvas</strong>
+			</div>
+		</button>
+    <!-- <div class="mdl-layout-spacer"></div>
+    <i class="material-icons">event</i> -->
+	  </div>
+	  <div class="mdl-card__supporting-text">
+	  	<a id="status"></a>
+	  </div>	
 
 		<footer class="mdl-mini-footer">
 		  <div class="mdl-mini-footer__left-section">
@@ -147,20 +157,17 @@
 		    </ul>
 		  </div>
 		</footer>
-  </div>  <!-- End fo cards -->
+  </div>  <!-- End of cards -->
   
 	
 	
 	<script>
 	  var saved = ['passphrase', 'name', 'sid', 'score'];
 	  var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
-	  var canvas = document.getElementById('sig-canvas');
-		  var ctx = canvas.getContext('2d');
+	  
 
-		function initUI(){
+		function initUI(canvas){
 			var button = document.createElement('button');
-		  
-
 		  var textNode = document.createTextNode('Save Signature!');
 		  button.appendChild(textNode);
 		  button.className = 'mdl-button mdl-js-button mdl-js-ripple-effect';
@@ -202,26 +209,32 @@
 		}
 
 		var sel = selector();
-	  	ctx.strokeStyle = 'blue';
+	  
 
 		var name_list = {};
 		
 		
 	$(function(){
-		initUI();
+		var canvas = document.getElementById('sig-canvas');
+	  var ctx = canvas.getContext('2d');
+	  ctx.strokeStyle = 'blue';
+		initUI(canvas);
 		$("#input_name").focus(function(){
 			var passphrase = $("#input_passphrase").val().toUpperCase();
+			//var secret_obj = 'info.json'; // stored in json
+			var secret_obj = static_info;  // stored in js
 			if(passphrase && !(passphrase in name_list)){
-				decrypt_secret('info.json', passphrase, function(info){
-					console.log('students info loaded');
-					name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
-					$("#input_name").autocomplete({
-						source: name_list[passphrase]
-					});
-					$("#input_target").autocomplete({
-						source: name_list[passphrase]
-					});
-				})
+				decrypt_secret(secret_obj, passphrase, 
+					function(info){
+						console.log('students info loaded');
+						name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
+						$("#input_name").autocomplete({
+							source: name_list[passphrase]
+						});
+						$("#input_target").autocomplete({
+							source: name_list[passphrase]
+						});
+				}); // auto-completion
 			}
 		})
 		
@@ -289,16 +302,16 @@
 	  	var passphrase = $("#input_passphrase").val().toUpperCase();
 
 	  	var formId = decrypt(formId_enc, passphrase);
-			if(!formId){
-				console.log('invalid passphrase!')
-				$("#status").html('invalid passphrase!')
-				return;
-			}
-			saveCookie();
-			$("#status").html('Submitting data ...');
-			var image_data = canvas.toDataURL();
-			console.log('data length', image_data.length);
-			var d = new Date();
+		if(!formId){
+			console.log('invalid passphrase!')
+			$("#status").html('invalid passphrase!')
+			return;
+		}
+		saveCookie();
+		$("#status").html('Submitting data ...');
+		var image_data = canvas.toDataURL();
+		console.log('data length', image_data.length);
+		var d = new Date();
 	    var stamp = d.toUTCString();
 	    var score = $('#input_score').val();
 	    if(!score){
@@ -310,7 +323,7 @@
 
 	  	submit_one(formId, id, 'genuine-dataurl', image_data, stamp);
 	  });
-	});
+	}); // document ready
 	//$(window).on('unload', onExit);
   
 	</script>

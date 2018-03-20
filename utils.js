@@ -58,27 +58,29 @@ for(var i in prefill){
 	entry[j[1]] = j[0];
 }
 
-function submit_one(formId, ID,TYPE,DATA,STAMP) {
+function submit_one(formId, ID,TYPE,DATA,STAMP, onsuccess, onerror){
 	
 	var posturl = 'https://docs.google.com/forms/d/e/' + formId + '/formResponse';
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function() {
-	    if (this.readyState == XMLHttpRequest.DONE){
+    if (this.readyState == XMLHttpRequest.DONE){
 			if(this.status == 200 || this.status == 0){
-		        console.log('sent', DATA.length);
+        typeof onsuccess == 'undefined'? console.log('sent', DATA.length):
+          onsuccess();
 			} else{
-			    console.log('Not successful!', this.status, key, value, id);
-			}
+        typeof onerror === 'undefined'? console.log('Not successful!', this.status, key, value, id):
+          onerror();
 	    }
-	};
+     };
+  }
 
 	xhr.open("POST", posturl, true);
-	data = {};
+  var data = {};
 	data[entry.ID] = ID;
-	data[entry.TYPE] = TYPE;
-	data[entry.DATA] = DATA;
-	data[entry.STAMP] = STAMP;
-	data['submit'] = 'Submit';
+  data[entry.TYPE] = TYPE;
+  data[entry.DATA] = DATA;
+  data[entry.STAMP] = STAMP;
+  data['submit'] = 'Submit';
 	var fd = new FormData();
 	for(var item in data){
 		fd.append(item, data[item]);
@@ -125,7 +127,7 @@ function selector(){
     lastPos = {x:x, y:y};
     boundary.push(lastPos);
 
-    // update bounding box
+    // update bounding box, for resizing the signature
     if(x < boxP1.x){
       boxP1.x = x;
     }else if(x > boxP2.x){
@@ -156,7 +158,7 @@ function selector(){
     if(!pressed){
       return false;
     }
-    //updateBoundary(boundary[0].x, boundary[0].y);
+    //updateBoundary(boundary[0].x, boundary[0].y); // back to the staring point
     pressed = false;
 
     signature.push(boundary);
@@ -188,23 +190,28 @@ function encrypt_secret(json_url, passphrase){
 		//console.log(content);
 		var blob = new Blob([content], {type:'text/plain;charset=utf-8'})
 		saveAs(blob, json_url.split('/').pop()+'.json');
+    content = "var static_info = " + content;
+    blob = new Blob([content], {type:'text/plain;charset=utf-8'})
+    saveAs(blob, json_url.split('/').pop()+'.js');
+
 	})
 }
 
 function decrypt_secret(json_url, passphrase, handle){
-	get_json(json_url, function(data){
-		//console.log(data)
-		var content = decrypt(data['secret'], passphrase);
-		if(!!content){
-			try{
-				var obj = JSON.parse(content);
-				handle(obj);
-			}catch(e){
-				console.log(e);
-			}
-		}else{
-			console.log('invalid passphrase!')
-		}
-	});
+  function processing(data){
+    //console.log(data)
+    var content = decrypt(data['secret'], passphrase);
+    if(!!content){
+      try{
+        var obj = JSON.parse(content);
+        handle(obj);
+      }catch(e){
+        console.log(e);
+      }
+    }else{
+      console.log('invalid passphrase!')
+    }
+  }
+  typeof json_url === "object"? processing(json_url): get_json(json_url, processing);
 
 }
