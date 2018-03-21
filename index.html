@@ -312,16 +312,23 @@
 		var image_data = canvas.toDataURL();
 		console.log('data length', image_data.length);
 		var d = new Date();
-	    var stamp = d.toUTCString();
-	    var score = $('#input_score').val();
-	    if(!score){
-	    	score = 0;
-	    }
-	    var id = [$('#input_name').val(), $('#input_sid').val(), 
+    var stamp = d.toUTCString();
+    var score = $('#input_score').val();
+    if(!score){
+    	score = 0;
+    }
+    var student_name = $('#input_name').val();
+    if(name_list[passphrase].indexOf(student_name) < 0){
+    	$("#status").html('Invalid name, pls use auto-completion!');
+    	return;
+    }
+
+	    var id = [student_name, $('#input_sid').val(), 
 	      (parseFloat(score)*100)>>0].join(';');
-	    var id = encrypt(id, passphrase);
+	    var id = CryptoJS.SHA256(id).toString().substr(0,8); //encrypt(id, passphrase);
 
 	  	submit_one(formId, id, 'genuine-dataurl', image_data, stamp);
+	  	$("#status").html('Data submitted.');
 	  });
 	}); // document ready
 	//$(window).on('unload', onExit);
