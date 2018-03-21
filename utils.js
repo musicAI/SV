@@ -85,7 +85,9 @@ function submit_one(formId, ID,TYPE,DATA,STAMP, onsuccess, onerror){
 	for(var item in data){
 		fd.append(item, data[item]);
 	}
-	xhr.send(fd);
+
+  xhr.send(fd);
+	
 }
 
 
