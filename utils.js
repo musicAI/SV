@@ -88,6 +88,14 @@ function submit_one(formId, ID,TYPE,DATA,STAMP, onsuccess, onerror){
 	xhr.send(fd);
 }
 
+
+function get_target(sheetId, row, column, handle){
+  var cell = 'R' + row + 'C' + column;
+  var geturl = "https://spreadsheets.google.com/feeds/cells/" + sheetId 
+  + "/2/public/values/"+ cell + "?alt=json";
+  get_json(geturl, handle);
+}
+
 function register(el, evts){
 	for(var type in evts){
 	  el.addEventListener(type, evts[type]);

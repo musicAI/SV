@@ -101,7 +101,11 @@
 			    <input class="mdl-textfield__input" type="text" id="input_target">
 			    <label class="mdl-textfield__label" for="input_target">Target Name...</label>
 			  </div>
+			  <div id="image_container" style="width: 100%; height: 100%;">
+		  		<image id="sig-image" width="255" height="127" style="width: 100%; height: 100%;">
+		    </div>
 			</form>
+			
 		    <!-- <ul class="mdl-list">
 		    	<li class="mdl-list__item mdl-button mdl-js-button">
 		    		<span class="mdl-list__item-primary-content">
@@ -110,7 +114,14 @@
 					</span>
 		    	</li>
 		    </ul> -->
-		    <button id="button_upload_forged" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+		  <button id="button_download_target" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+					<!-- Rich Tooltip -->
+					<div class="icon material-icons">get_app</div>
+					<div class="mdl-tooltip" data-mdl-for="button_download_target">
+					Get <strong>signature</strong>
+					</div>
+			</button>
+		  <button id="button_upload_forged" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
 		  	<!-- Rich Tooltip -->
 				<div class="icon material-icons">cloud_upload</div>
 				<div class="mdl-tooltip" data-mdl-for="button_upload_forged">
@@ -124,6 +135,9 @@
 		</div> <!-- End of tabs -->
 
 		<div class="mdl-card__supporting-text">
+			<div class="mdl-card__supporting-text">
+	  	<a id="status"></a>
+	  	</div>	
 	  	
 	  	<div id="canvas_container" style="border: 1pt solid black; width: 100%; height: 100%;">
 		  		<canvas id="sig-canvas" width="255" height="127" style="width: 100%; height: 100%;">
@@ -131,6 +145,7 @@
 		  
 	  </div>
 	  <div class="mdl-card__actions">
+
 	  	<div id="container"></div>
 	    <a id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
 	      Clear Canvas
@@ -144,9 +159,7 @@
     <!-- <div class="mdl-layout-spacer"></div>
     <i class="material-icons">event</i> -->
 	  </div>
-	  <div class="mdl-card__supporting-text">
-	  	<a id="status"></a>
-	  </div>	
+	  
 
 		<footer class="mdl-mini-footer">
 		  <div class="mdl-mini-footer__left-section">
@@ -164,6 +177,7 @@
 	<script>
 	  var saved = ['passphrase', 'name', 'sid', 'score'];
 	  var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
+	  var sheetId_enc = "b5e85b633fa5f51892b1d107a8bf0505b9c9a3bf2ba1c6e6ea26f893e9219617U2FsdGVkX1/MFIIvTYyEQFr90Uj7Gs0N0iJcGYgD20LVCWrVik6han9ccZ9Xmpq2UqYkRXg03j0PHnZZnTXXxA==";
 	  
 
 		function initUI(canvas){
@@ -223,7 +237,7 @@
 	  ctx.lineWidth = 2;
 	  ctx.lineJoin = 'round'
 		initUI(canvas);
-		$("#input_name").focus(function(){
+		function update_namelist(){
 			var passphrase = $("#input_passphrase").val().toUpperCase();
 			//var secret_obj = 'info.json'; // stored in json
 			var secret_obj = static_info;  // stored in js
@@ -240,7 +254,9 @@
 						});
 				}); // auto-completion
 			}
-		})
+		}
+		$("#input_name").focus(update_namelist);
+		$("#input_target").focus(update_namelist);
 		
 	  
 	  // source image mouse control
@@ -311,34 +327,81 @@
 	  	var passphrase = $("#input_passphrase").val().toUpperCase();
 
 	  	var formId = decrypt(formId_enc, passphrase);
-		if(!formId){
-			console.log('invalid passphrase!')
-			$("#status").html('invalid passphrase!')
-			return;
-		}
-		saveCookie();
-		$("#status").html('Submitting data ...');
-		var image_data = canvas.toDataURL();
-		console.log('data length', image_data.length);
-		var d = new Date();
-    var stamp = d.toUTCString();
-    var score = $('#input_score').val();
-    if(!score){
-    	score = 0;
-    }
-    var student_name = $('#input_name').val();
-    if(name_list[passphrase].indexOf(student_name) < 0){
-    	$("#status").html('Invalid name, pls use auto-completion!');
-    	return;
-    }
+			if(!formId){
+				console.log('invalid passphrase!')
+				$("#status").html('invalid passphrase!')
+				return;
+			}
+			saveCookie();
+			
+			var image_data = canvas.toDataURL();
+			console.log('data length', image_data.length);
+			var d = new Date();
+	    var stamp = d.toUTCString();
+	    var score = $('#input_score').val();
+	    if(!score){
+	    	score = 0;
+	    }
+	    var student_name = $('#input_name').val();
+	    if(name_list[passphrase].indexOf(student_name) < 0){
+	    	$("#status").html('Invalid name, pls use auto-completion!');
+	    	return;
+	    }
 
 	    var id = [student_name, $('#input_sid').val(), 
 	      (parseFloat(score)*100)>>0].join(';');
 	    var id = CryptoJS.SHA256(id).toString().substr(0,8); //encrypt(id, passphrase);
+	    $("#status").html('Submitting data ...');
 
 	  	submit_one(formId, id, 'genuine-dataurl', image_data, stamp);
 	  	$("#status").html('Data submitted.');
 	  });
+		$("#button_download_target").click(function(){
+			var passphrase = $("#input_passphrase").val().toUpperCase();
+
+	  	var sheetId = decrypt(sheetId_enc, passphrase);
+			if(!sheetId){
+				console.log('invalid passphrase!')
+				$("#status").html('invalid passphrase!')
+				return;
+			}
+			var target_name = $('#input_target').val();
+			if(name_list[passphrase].indexOf(target_name) < 0){
+	    	$("#status").html('Invalid name, pls use auto-completion!');
+	    	return;
+	    }
+			saveCookie();
+			var row = name_list[passphrase].indexOf(target_name);
+	    if(row < 0){
+	    	$("#status").html('Invalid name, pls use auto-completion!');
+	    	return;
+	    }
+	    row += 1;
+			get_target(sheetId, row, 2, function(data){
+				// handle data
+				var dataurl = data.entry.gs$cell.$t;
+				if(dataurl.indexOf('base64')<0){
+					$("#status").html("No signature to imitate");
+					$("#sig-image").attr('src', '');
+					return;
+				}
+				$("#sig-image").attr('src', dataurl);
+			});
+
+		});
+    $("#button_upload_forged").click(function(){
+    	var passphrase = $("#input_passphrase").val().toUpperCase();
+
+	  	var formId = decrypt(formId_enc, passphrase);
+			if(!formId){
+				console.log('invalid passphrase!')
+				$("#status").html('invalid passphrase!')
+				return;
+			}
+			saveCookie();
+
+    });
+		
 	}); // document ready
 	//$(window).on('unload', onExit);
   
