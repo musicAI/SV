@@ -125,8 +125,8 @@
 
 		<div class="mdl-card__supporting-text">
 	  	
-	  	<div id="canvas_container" style="border: 1pt solid black; width: 200px; height: 100px;">
-		  		<canvas id="sig-canvas" width="200" height="100">
+	  	<div id="canvas_container" style="border: 1pt solid black; width: 100%; height: 100%;">
+		  		<canvas id="sig-canvas" width="255" height="127" style="width: 100%; height: 100%;">
 		  </div>
 		  
 	  </div>
@@ -217,7 +217,11 @@
 	$(function(){
 		var canvas = document.getElementById('sig-canvas');
 	  var ctx = canvas.getContext('2d');
+	  var scaling = parseFloat($(canvas).attr('width'))/parseFloat($(canvas).css('width'));
+	  console.log('canvas scaling', scaling);
 	  ctx.strokeStyle = 'blue';
+	  ctx.lineWidth = 2;
+	  ctx.lineJoin = 'round'
 		initUI(canvas);
 		$("#input_name").focus(function(){
 			var passphrase = $("#input_passphrase").val().toUpperCase();
@@ -251,16 +255,21 @@
 	    ctx.closePath();
 	  }
 	  function start(e){
-	  	if(sel.pressing(e)){
+	  	var offsetX = Math.round(scaling * e.offsetX);
+	  	var offsetY = Math.round(scaling * e.offsetY);
+
+	  	if(sel.pressing(offsetX, offsetY)){
         ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
+        ctx.moveTo(offsetX, offsetY);
         window.blockMenuHeaderScroll = true;
       }
 	  }
 	  function move(e){
 	  	if(sel.pressed()){
-	        sel.updateBoundary(e.offsetX, e.offsetY);
-	        ctx.lineTo(e.offsetX, e.offsetY);
+	  		var offsetX = Math.round(scaling * e.offsetX);
+	  	  var offsetY = Math.round(scaling * e.offsetY);
+	        sel.updateBoundary(offsetX, offsetY);
+	        ctx.lineTo(offsetX, offsetY);
 	        ctx.stroke();
 	    }
 	  }

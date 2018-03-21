@@ -141,15 +141,15 @@ function selector(){
 
   }
 
-  function pressing(e){
+  function pressing(offsetX, offsetY){
     if(pressed){
       return false;
     }
     boundary = [];
-    lastPos = {x:e.offsetX, y:e.offsetY};
+    lastPos = {x:offsetX, y:offsetY};
     boundary.push(lastPos);
-    boxP1 = {x:e.offsetX, y:e.offsetY};
-    boxP2 = {x:e.offsetX, y:e.offsetY};
+    boxP1 = {x:offsetX, y:offsetY};
+    boxP2 = {x:offsetX, y:offsetY};
     pressed = true;
     return true;
   }
