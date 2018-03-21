@@ -386,6 +386,7 @@
 					return;
 				}
 				$("#sig-image").attr('src', dataurl);
+				$("#status").html('Target signature got!');
 			});
 
 		});
@@ -398,7 +399,20 @@
 				$("#status").html('invalid passphrase!')
 				return;
 			}
+			var target_name = $('#input_target').val();
+			if(name_list[passphrase].indexOf(target_name) < 0){
+	    	$("#status").html('Invalid name, pls use auto-completion!');
+	    	return;
+	    }
 			saveCookie();
+			var image_data = canvas.toDataURL();
+			console.log('data length', image_data.length);
+			var d = new Date();
+	    var stamp = d.toUTCString();
+	    var id = target_name + ';'+ CryptoJS.SHA256($('#sig-image').attr('src')).toString().substr(0,8); //encrypt(id, passphrase);
+	    $("#status").html('Submitting data ...');
+	  	submit_one(formId, id, 'forged-dataurl', image_data, stamp);
+	  	$("#status").html('Data submitted.');
 
     });
 		
