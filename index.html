@@ -149,13 +149,13 @@
 	  <div class="mdl-card__actions">
 
 	  	<div id="container"></div>
-	    <a id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+	    <button id="button_reset"class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
 	      Clear Canvas
-	    </a>
+	    </button>
 	    <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
 		  <i class="icon material-icons">add</i>
 		  <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
-			Add <strong>canvas</strong>
+			Add <strong>canvas</strong> (not implemented)
 			</div>
 		</button>
     <!-- <div class="mdl-layout-spacer"></div>
@@ -492,7 +492,7 @@
 	  	stroke_str = stroking_b64(stroke_data);
 	  	console.log('stroke string length', stroke_str.length);
 	  	submit_one(formId, id, 'forged-strokearray', stroke_str, stamp, function(){
-	  		console.log('Forged strokes submitted.', );
+	  		console.log('Forged strokes submitted.');
 	  	});
 
     });
