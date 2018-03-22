@@ -178,11 +178,39 @@
 	
 	<script>
 	  var saved = ['passphrase', 'name', 'sid', 'score', 'label', 'target'];
+	  function saveCookie(){
+			for(var i in saved){
+		  	var j = saved[i];
+		  	var p = $('#input_' + j).val();
+		  	if(!!p){
+		  		setCookie(j, p, 2);
+			  }
+		  }
+		  console.log('Cookies saved.');
+		}
 	  var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
 	  var sheetId_enc = "b5e85b633fa5f51892b1d107a8bf0505b9c9a3bf2ba1c6e6ea26f893e9219617U2FsdGVkX1/MFIIvTYyEQFr90Uj7Gs0N0iJcGYgD20LVCWrVik6han9ccZ9Xmpq2UqYkRXg03j0PHnZZnTXXxA==";
 
 	  var name_list = {};
-	  var signature_list = {};
+	  var signature_list = {}, stroking_list = {}
+	  var forged_signature_list = {}, forged_stroking_list = {};
+	  var app = {
+	  	names: name_list,
+	  	genuine_sig: signature_list,
+	  	genuine_stroke: stroking_list,
+	  	forged_sig: forged_signature_list,
+	  	forged_stroke: forged_stroking_list,
+	  	labels: function(){
+	  		return Object.keys(this.genuine_sig);
+	  	},
+	  	item: function(label, i){
+	  		return {
+	  			signature: this.genuine_sig[label][i],
+	  			stroking: this.genuine_stroke[label][i],
+	  			id: [label, i]
+	  		}
+	  	}
+	  }
 	  var logger = new function(){
 	  	var ele = this.ele = $("#status");
 	  	var _this = this;
@@ -207,15 +235,22 @@
 		  document.getElementById('container').appendChild(button);
 		  $(button).click(function(){
 		  	var zip = new JSZip();
-				zip.file("Readme.txt", "signatures (with hash-label) stored in signature/, size 256x128, PNG format\n");
+				zip.file("Readme.txt", "signatures (with hash-label) stored in signature/, size 256x128, PNG format\nstrokes stored in stroke/, 2-D array");
 				var img = zip.folder("signature");
+				var st = zip.folder("stroke");
 				var n_img = 0;
 				for(var label in signature_list){
 					signature_list[label].forEach(function(e,i,arr){
-						img.file(CryptoJS.SHA256(e).toString().substr(0,8)+'-'+label+'.png', 
+						var s = stroking_list[label][i];
+						var h = CryptoJS.SHA256(e).toString().substr(0,8);
+						img.file(h +'-'+label+'.png', 
 							e.split('base64,')[1], {base64: true});
 						n_img++;
+						var arr = s.map(function(e){return e.map(function(e){return [e.x,e.y]})});
+						var arr = JSON.stringify(arr);
+						st.file(h+'-'+label+'.json', arr);
 					});
+					
 				}
 				if(n_img == 0){
 					logger.log('No uploaded signature to save in this session!');
@@ -223,7 +258,7 @@
 				}
 				//var imgURL = canvas.toDataURL()
 				//img.file("signature.png", imgURL.split('base64,')[1], {base64: true});
-				zip.generateAsync({type:"blob"})
+				zip.generateAsync({type:"blob"	})
 				.then(function(content) {
 				    // see FileSaver.js
 				    saveAs(content, "Genuine.zip");
@@ -242,20 +277,27 @@
 
 		}
 
-		function saveCookie(){
+		
 
-			
-			for(var i in saved){
-		  	var j = saved[i];
-		  	var p = $('#input_' + j).val();
-		  	if(!!p){
-		  		setCookie(j, p, 2);
-			  }
-		  }
-		  console.log('Cookies saved.');
+	var sel = selector();
+	function update_namelist(){
+		var passphrase = $("#input_passphrase").val().toUpperCase();
+		//var secret_obj = 'info.json'; // stored in json
+		var secret_obj = static_info;  // stored in js
+		if(passphrase && !(passphrase in name_list)){
+			decrypt_secret(secret_obj, passphrase, 
+				function(info){
+					logger.log('students info loaded', info.students.length);
+					name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
+					$("#input_name").autocomplete({
+						source: name_list[passphrase]
+					});
+					$("#input_target").autocomplete({
+						source: name_list[passphrase]
+					});
+			}); // auto-completion
 		}
-
-		var sel = selector();
+	}
 	  
 
 		
@@ -270,26 +312,10 @@
 	  ctx.lineWidth = 2;
 	  ctx.lineJoin = 'round'
 		initUI(canvas);
-		function update_namelist(){
-			var passphrase = $("#input_passphrase").val().toUpperCase();
-			//var secret_obj = 'info.json'; // stored in json
-			var secret_obj = static_info;  // stored in js
-			if(passphrase && !(passphrase in name_list)){
-				decrypt_secret(secret_obj, passphrase, 
-					function(info){
-						logger.log('students info loaded', info.students.length);
-						name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
-						$("#input_name").autocomplete({
-							source: name_list[passphrase]
-						});
-						$("#input_target").autocomplete({
-							source: name_list[passphrase]
-						});
-				}); // auto-completion
-			}
-		}
-		$("#input_name").focus(update_namelist);
-		$("#input_target").focus(update_namelist);
+		
+		$("#input_passphrase").focusout(update_namelist)
+		// $("#input_name").focus(update_namelist);
+		// $("#input_target").focus(update_namelist);
 		
 	  
 	  // source image mouse control
@@ -389,8 +415,10 @@
 	    logger.log('Saving and submitting data ...');
 	    if(!(label in signature_list)){
 	  			signature_list[label] = [];
+	  			stroking_list[label] = [];
 	  	}
 	  	signature_list[label].push(image_data);
+	  	stroking_list[label].push(sel.signature());
 	  	submit_one(formId, id, 'genuine-dataurl', image_data, stamp, function(){
 	  		logger.log('Genuine signature submitted.');
 	  		

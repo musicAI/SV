@@ -225,3 +225,12 @@ function decrypt_secret(json_url, passphrase, handle){
   typeof json_url === "object"? processing(json_url): get_json(json_url, processing);
 
 }
+
+function stroking_zip(stroke_arr){
+  var zip = JSZip();
+  var data = stroke_arr.map(function(e){return e.map(function(e){return [e.x,e.y]})})
+  var data = JSON.stringify(data);
+
+  zip.generateAsync({type:"string", compression: "DEFLATE"});
+
+}
