@@ -126,8 +126,9 @@ function update_namelist(){
 	if(passphrase && !(passphrase in name_list)){
 		decrypt_secret(secret_obj, passphrase, 
 			function(info){
-				logger.log('students info loaded', info.students.length);
-				name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
+				
+				name_list[passphrase] = info.name || info.students.map(function(e){return e[1]+', '+e[0]});
+        logger.log('students info loaded', name_list[passphrase].length);
 				$("#input_name").autocomplete({
 					source: name_list[passphrase]
 				});
