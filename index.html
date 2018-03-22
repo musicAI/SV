@@ -15,8 +15,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+  <script>
+    function insert_script(url, sec){
+    	var head = typeof sec == 'undefined'? document.getElementsByTagName('head')[0]:
+    		document.getElementsByTagName('body')[0];
+
+    	var script = document.createElement('script');
+		script.type = 'text/javascript';
+		//script.onload = function() {}
+		var dt = new Date().toUTCString()
+		script.src = url+'?t=' + encodeURIComponent(dt);
+		head.appendChild(script);
+	}
+	// insert_script('utils.js');
+	// insert_script('info.js');
+	//insert_script('index.js', 'body');
+  </script>
   <script src="utils.js?v=1"></script>
   <script src="info.js?v=1"></script>
+
   
 </head>
 <body>
@@ -148,19 +165,35 @@
 		  
 	  </div>
 	  <div class="mdl-card__actions">
-
-	  	<div id="container"></div>
-	    <button id="button_reset" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-	      Clear Canvas
+	  	<div>
+	  	<button id="button_reset" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+	    	<div class="icon material-icons">delete</div>
+	        <a> Clear Canvas </a>
 	    </button>
-	    <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+	    <span id="badge_saved_count" class="mdl-badge" data-badge="0">Saved</span>
+	    <!-- <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
 		  <i class="icon material-icons">add</i>
 		  <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
 			Add <strong>canvas</strong> (not implemented)
 			</div>
-		</button>
+		</button> -->
+		<div>
+
+	  	<div id="container">
+	  	  <button id="button_save" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+	    	<div class="icon material-icons">assignment_returned</div>
+	        <a> Save Signatures to zip </a>
+	      </button>
+
+	  	</div>
+	  	
+	    
     <!-- <div class="mdl-layout-spacer"></div>
     <i class="material-icons">event</i> -->
+	  </div>
+	  <div id="snack-toast" class="mdl-js-snackbar mdl-snackbar">
+  			<div class="mdl-snackbar__text"></div>
+  			<button class="mdl-snackbar__action" type="button"></button>
 	  </div>
 	  
 
@@ -174,23 +207,7 @@
 		  </div>
 		</footer>
   </div>  <!-- End of cards -->
-  <script>
-    function insert_script(url, sec){
-    	var head = typeof sec == 'undefined'? document.getElementsByTagName('head')[0]:
-    		document.getElementsByTagName('body')[0];
-
-    	var script = document.createElement('script');
-		script.type = 'text/javascript';
-		//script.onload = function() {}
-		var dt = new Date().toUTCString()
-		script.src = url+'?t=' + encodeURIComponent(dt);
-		head.appendChild(script);
-	}
-	// insert_script('utils.js');
-	// insert_script('info.js');
-	insert_script('index.js', 'body');
-
-  </script>
+  <script src="index.js?v=1"></script>
   
 	
 	
