@@ -26,3 +26,13 @@ j = {
 }
 
 json.dump(j, open('secret/hash.json', 'w'), ensure_ascii=False)
+
+with open('collect.html', 'r') as f:
+	html = f.read()
+for s in ['utils', 'info', 'index']:
+	with open(s + '.js', 'r') as f:
+		script = f.read();
+	html = html.replace(f'<script src="{s}.js"></script>', f'<script>\n{script}\n</script>');
+
+with open('index.html', 'w') as f:
+	f.write(html)

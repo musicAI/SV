@@ -31,8 +31,260 @@
 	// insert_script('info.js');
 	//insert_script('index.js', 'body');
   </script>
-  <script src="utils.js"></script>
-  <script src="info.js"></script>
+  <script>
+function encrypt(unencrypted, passphrase){
+	var encrypted = CryptoJS.AES.encrypt(unencrypted, passphrase);
+  	var hmac = CryptoJS.HmacSHA256(encrypted.toString(), CryptoJS.SHA256(passphrase).toString()).toString();
+  	var encryptedMsg = hmac + encrypted;
+  	return encryptedMsg;
+}
+function decrypt(encryptedMsg, passphrase){
+    var encryptedHMAC = encryptedMsg.substring(0, 64),
+    encryptedHTML = encryptedMsg.substring(64),
+    decryptedHMAC = CryptoJS.HmacSHA256(encryptedHTML, CryptoJS.SHA256(passphrase).toString()).toString();
+
+    if (decryptedHMAC !== encryptedHMAC) {
+        //alert('Bad passphrase !');
+        return null;
+    }
+    var ret = CryptoJS.AES.decrypt(encryptedHTML, passphrase).toString(CryptoJS.enc.Utf8);
+    return ret;
+}
+
+function setCookie(cname, cvalue, exhrs) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exhrs*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/;";
+}
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+function get_json(url, handle){
+	$.ajax({
+		url: url,
+		type: 'GET',
+		dataType: 'JSON'
+	}).done(handle).fail(function(e){
+		console.log(e)
+		//alert("Access Denied!")
+	})
+}
+
+
+var prefill_str = "entry.734324363=ID&entry.980529461=TYPE&entry.466105486=DATA&entry.1069261603=STAMP";
+prefill = prefill_str.split('&');
+var entry = {};
+for(var i in prefill){
+	var j = prefill[i].split('=');
+	entry[j[1]] = j[0];
+}
+
+function submit_one(formId, ID,TYPE,DATA,STAMP, onsuccess, onerror){
+	
+	var posturl = 'https://docs.google.com/forms/d/e/' + formId + '/formResponse';
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = function() {
+    if (this.readyState == XMLHttpRequest.DONE){
+			if(this.status == 200 || this.status == 0){
+        typeof onsuccess == 'undefined'? console.log('sent', DATA.length):
+          onsuccess();
+			} else{
+        typeof onerror === 'undefined'? console.log('Not successful!', this.status, key, value, id):
+          onerror();
+	    }
+     };
+  }
+
+	xhr.open("POST", posturl, true);
+  var data = {};
+	data[entry.ID] = ID;
+  data[entry.TYPE] = TYPE;
+  data[entry.DATA] = DATA;
+  data[entry.STAMP] = STAMP;
+  data['submit'] = 'Submit';
+	var fd = new FormData();
+	for(var item in data){
+		fd.append(item, data[item]);
+	}
+
+  xhr.send(fd);
+	
+}
+
+
+function get_target(sheetId, row, column, handle){
+  var cell = 'R' + row + 'C' + column;
+  var geturl = "https://spreadsheets.google.com/feeds/cells/" + sheetId 
+  + "/2/public/values/"+ cell + "?alt=json";
+  get_json(geturl, handle);
+}
+
+function register(el, evts){
+	for(var type in evts){
+	  el.addEventListener(type, evts[type]);
+	}
+}
+
+function selector(){
+	var pressed = false;
+	var signature = [];
+	var boundary = [];
+	var boxP1 = {};
+	var boxP2 = {};
+	var lastPos = {};
+
+  function updateBoundary(x,y){
+    var dx = x - lastPos.x;
+    var dy = y - lastPos.y;
+    if(dx == 0 && dy == 0){
+      return;
+    }
+
+    // connect
+    if(dx*dx > 1 && dy*dy<=dx*dx){
+      var step = dx>0? 1: -1;
+      var r = dy/dx;
+
+      for(var j=1;j<dx/step;++j){
+        boundary.push({x:lastPos.x+step*j, y:lastPos.y+Math.floor(step*j*r)});
+      }
+    }else if(dy*dy > 1 && dy*dy>=dx*dx){
+      var step = dy>0? 1: -1;
+      var r = dx/dy;
+      for(var j=1;j<dy/step;++j){
+        boundary.push({x:lastPos.x+Math.floor(step*j*r), y:lastPos.y+step*j});
+      }
+    }
+    lastPos = {x:x, y:y};
+    boundary.push(lastPos);
+
+    // update bounding box, for resizing the signature
+    if(x < boxP1.x){
+      boxP1.x = x;
+    }else if(x > boxP2.x){
+      boxP2.x = x;
+    }
+    if(y < boxP1.y){
+      boxP1.y = y;
+    }else if(y > boxP2.y){
+      boxP2.y = y;
+    }
+
+  }
+
+  function pressing(offsetX, offsetY){
+    if(pressed){
+      return false;
+    }
+    boundary = [];
+    lastPos = {x:offsetX, y:offsetY};
+    boundary.push(lastPos);
+    boxP1 = {x:offsetX, y:offsetY};
+    boxP2 = {x:offsetX, y:offsetY};
+    pressed = true;
+    return true;
+  }
+
+  function release(e){
+    if(!pressed){
+      return false;
+    }
+    //updateBoundary(boundary[0].x, boundary[0].y); // back to the staring point
+    pressed = false;
+
+    signature.push(boundary);
+
+    return {
+      boundary: boundary,
+      boxP1: boxP1,
+      boxP2: boxP2
+    }
+
+  }
+  function reset(){
+    	signature = [];
+  }
+  return {
+    pressing: pressing,
+    pressed: function(){return pressed},
+    release: release,
+    updateBoundary: updateBoundary,
+    reset: reset,
+    signature: function(){return signature}
+  }
+
+}
+
+function encrypt_secret(json_url, passphrase){
+	get_json(json_url, function(data){
+		var content = JSON.stringify({"secret":encrypt(JSON.stringify(data), passphrase)});
+		//console.log(content);
+		var blob = new Blob([content], {type:'text/plain;charset=utf-8'})
+		saveAs(blob, json_url.split('/').pop()+'.json');
+    content = "var static_info = " + content;
+    blob = new Blob([content], {type:'text/plain;charset=utf-8'})
+    saveAs(blob, json_url.split('/').pop()+'.js');
+
+	})
+}
+
+function decrypt_secret(json_url, passphrase, handle){
+  function processing(data){
+    //console.log(data)
+    var content = decrypt(data['secret'], passphrase);
+    if(!!content){
+      try{
+        var obj = JSON.parse(content);
+        handle(obj);
+      }catch(e){
+        console.log(e);
+      }
+    }else{
+      console.log('invalid passphrase!')
+    }
+  }
+  typeof json_url === "object"? processing(json_url): get_json(json_url, processing);
+
+}
+
+function stroking_b64(stroke_arr){
+  //var zip = JSZip();
+  var data = stroke_arr.map(function(e){
+    return btoa(String.fromCharCode.apply(null, [].concat.apply([], e.map(function(e){return [e.x,e.y]}))));
+  });
+  return data.join(';');
+  
+  // data.forEach(function(e,i,arr){
+  //   zip.file(String(i+1), e, {binary:true, compression:"DEFLATE"})
+  // });
+  //zip.generateAsync({type:"string", compression: "DEFLATE"}).then(handle);
+
+}
+function b64_stroking(b64str){
+  return b64str.split(';').map(function(e){
+    return atob(e).split('').map(function(e,i){
+      return e.charCodeAt(0);
+    });
+  })
+}
+
+</script>
+  <script>
+﻿var static_info = {"secret":"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"}
+</script>
 
   
 </head>
@@ -207,7 +459,376 @@
 		  </div>
 		</footer>
   </div>  <!-- End of cards -->
-  <script src="index.js"></script>
+  <script>
+var saved = ['passphrase', 'name', 'sid', 'score', 'label', 'target'];
+function saveCookie(){
+	for(var i in saved){
+  	var j = saved[i];
+  	var p = $('#input_' + j).val();
+  	if(!!p){
+  		setCookie(j, p, 2);
+	  }
+  }
+  console.log('Cookies saved.');
+}
+var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
+var sheetId_enc = "b5e85b633fa5f51892b1d107a8bf0505b9c9a3bf2ba1c6e6ea26f893e9219617U2FsdGVkX1/MFIIvTYyEQFr90Uj7Gs0N0iJcGYgD20LVCWrVik6han9ccZ9Xmpq2UqYkRXg03j0PHnZZnTXXxA==";
+
+var name_list = {};
+var signature_list = {}, stroking_list = {}
+var forged_signature_list = {}, forged_stroking_list = {};
+var app = {
+	saved_count:0,
+	names: name_list,
+	genuine_sig: signature_list,
+	genuine_stroke: stroking_list,
+	forged_sig: forged_signature_list,
+	forged_stroke: forged_stroking_list,
+	labels: function(){
+		return Object.keys(this.genuine_sig);
+	},
+	item: function(label, i){
+		return {
+			signature: this.genuine_sig[label][i],
+			stroking: this.genuine_stroke[label][i],
+			id: [label, i]
+		}
+	},
+	badge: $("#badge_saved_count"),
+	add_genuine: function(label, imgdata, stdata){
+		if(!(label in this.genuine_sig)){
+			this.genuine_sig[label] = [];
+			this.genuine_stroke[label] = [];
+		}
+		this.genuine_sig[label].push(imgdata);
+		this.genuine_stroke[label].push(stdata);
+		this.saved_count ++;
+		this.badge.attr('data-badge', String(this.saved_count));
+	}
+}
+  var logger = new function(){
+  	var ele = this.ele = $("#status");
+  	var snack = this.snack = $("#snack-toast")[0];
+  	console.log(ele[0], snack)
+  	var _this = this;
+  	this.log = function(msg){
+  		(arguments.length <= 1 && typeof msg == 'string')? 
+  			//snack.MaterialSnackbar.showSnackbar({message: msg, timeout:5000}):
+  			ele.html(msg): 
+  			console.log.apply(_this, arguments);
+  	}
+  	this.invalid_pass = function(){
+  		this.log('Invalid passphrase!');
+  	}
+  	this.invalid_name = function(){
+  		this.log('Invalid name, pls select from auto-completion!');
+  	}
+  }
+  
+
+function initUI(canvas){
+  // var button = document.createElement('button');
+  // var textNode = document.createTextNode('Save Signature!');
+  // button.appendChild(textNode);
+  // button.className = 'mdl-button mdl-js-button mdl-js-ripple-effect';
+  // componentHandler.upgradeElement(button);
+  // document.getElementById('container').appendChild(button);
+  var button = "#button_save"
+  $(button).click(function(){
+  	var zip = new JSZip();
+		zip.file("Readme.txt", "signatures (with hash-label) stored in signature/, size 256x128, PNG format\nstrokes stored in stroke/, 2-D array");
+		var img = zip.folder("signature");
+		var st = zip.folder("stroke");
+		var n_img = 0;
+		for(var label in signature_list){
+			signature_list[label].forEach(function(e,i,arr){
+				var s = stroking_list[label][i];
+				var h = CryptoJS.SHA256(e).toString().substr(0,8);
+				img.file(h +'-'+label+'.png', 
+					e.split('base64,')[1], {base64: true});
+				n_img++;
+				var arr = s.map(function(e){return e.map(function(e){return [e.x,e.y]})});
+				var arr = JSON.stringify(arr);
+				st.file(h+'-'+label+'.json', arr);
+			});
+			
+		}
+		if(n_img == 0){
+			logger.log('No uploaded signature to save in this session!');
+			return;
+		}
+		//var imgURL = canvas.toDataURL()
+		//img.file("signature.png", imgURL.split('base64,')[1], {base64: true});
+		zip.generateAsync({type:"blob"	})
+		.then(function(content) {
+		    // see FileSaver.js
+		    saveAs(content, "Genuine.zip");
+		    logger.log(n_img + ' signatures saved to zip.');
+		});
+  });
+  
+  for(var i in saved){
+  	var j = saved[i];
+  	var p = getCookie(j);
+  	//console.log(j, p);
+  	if(!!p){
+	  	$('#input_' + j).val(p);
+	  }
+  }
+
+}
+
+	
+
+var sel = selector();
+function update_namelist(){
+	var passphrase = $("#input_passphrase").val().toUpperCase();
+	//var secret_obj = 'info.json'; // stored in json
+	var secret_obj = static_info;  // stored in js
+	if(passphrase && !(passphrase in name_list)){
+		decrypt_secret(secret_obj, passphrase, 
+			function(info){
+				logger.log('students info loaded', info.students.length);
+				name_list[passphrase] = info.students.map(function(e){return e[1]+', '+e[0]});
+				$("#input_name").autocomplete({
+					source: name_list[passphrase]
+				});
+				$("#input_target").autocomplete({
+					source: name_list[passphrase]
+				});
+		}); // auto-completion
+	}
+}
+  
+
+	
+	
+	
+$(function(){
+	var canvas = document.getElementById('sig-canvas');
+    var ctx = canvas.getContext('2d');
+    var scaling = parseFloat($(canvas).attr('width'))/parseFloat($(canvas).css('width'));
+    console.log('canvas scaling', scaling);
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round'
+	initUI(canvas);
+	
+	$("#input_passphrase").focusout(update_namelist)
+	$("#input_name").focus(update_namelist);
+	$("#input_target").focus(update_namelist);
+	
+  
+  // source image mouse control
+  function release(e){
+    var res = sel.release(e);
+    window.blockMenuHeaderScroll = false;
+    if(res == false){
+      return;
+    }
+    //ctx.lineTo(res.boundary[0].x, res.boundary[0].y);
+    //ctx.stroke();
+    ctx.closePath();
+  }
+  function start(e){
+  	var offsetX = Math.round(scaling * e.offsetX);
+  	var offsetY = Math.round(scaling * e.offsetY);
+
+  	if(sel.pressing(offsetX, offsetY)){
+    ctx.beginPath();
+    ctx.moveTo(offsetX, offsetY);
+    window.blockMenuHeaderScroll = true;
+  }
+  }
+  function move(e){
+  	if(sel.pressed()){
+  		var offsetX = Math.round(scaling * e.offsetX);
+  	  var offsetY = Math.round(scaling * e.offsetY);
+        sel.updateBoundary(offsetX, offsetY);
+        ctx.lineTo(offsetX, offsetY);
+        ctx.stroke();
+    }
+  }
+  function reset(){
+  	console.log(sel.signature())
+  	sel.reset();
+  	ctx.clearRect(0, 0, canvas.width, canvas.height);
+  	logger.log('Canvas cleared!');
+  }
+
+  register(canvas, {
+    'mousedown': function(e){
+    	start(e);
+    	move(e);
+    },
+    'touchstart': start,
+    'mousemove': move,
+    'touchmove': function(e){
+    	if(window.blockMenuHeaderScroll){
+	    		e.preventDefault();
+	    }
+    	var touch = e.targetTouches[0];
+     //$("#status").html([touch.clientX>>0, touch.pageX>>0, touch.clientY>>0, touch.pageY>>0].join(','));
+    	var mouseEvent = new MouseEvent("mousemove", {
+		    clientX: touch.pageX,
+		    clientY: touch.pageY
+		  });
+	  	canvas.dispatchEvent(mouseEvent);
+    },
+    'mouseup': release,
+    'mouseout': release,
+    'touchend': release,
+    'dblclick': function(e){
+      //console.log(e.offsetX, e.offsetY);
+      reset();
+    }
+  });
+  $("#button_reset").click(reset);
+  $("#button_upload_genuine").click(function(){
+  	var passphrase = $("#input_passphrase").val().toUpperCase();
+
+  	var formId = decrypt(formId_enc, passphrase);
+	if(!formId){
+		logger.invalid_pass();
+		return;
+	}
+	saveCookie();
+	
+	
+	var d = new Date();
+    var stamp = d.toUTCString();
+    var score = $('#input_score').val();
+    if(!score){
+    	score = 0;
+    }
+    var label = $('#input_label').val();
+    update_namelist();
+    var student_name = $('#input_name').val();
+    if(name_list[passphrase].indexOf(student_name) < 0){
+    	logger.invalid_name();
+    	return;
+    }
+
+    var id = [student_name, $('#input_sid').val(), 
+      (parseFloat(score)*100)>>0].join(';');
+    var id = CryptoJS.SHA256(id).toString().substr(0,8) + label; //encrypt(id, passphrase);
+    logger.log('Saving and submitting data ...');
+  	
+  	var stroke_data = sel.signature()
+  	//stroking_list[label].push(stroke_data);
+  	var stroke_str = stroking_b64(stroke_data);
+  	console.log('stroke string length', stroke_str.length);
+  	submit_one(formId, id, 'genuine-strokearray', stroke_str, stamp, function(){
+  		console.log('Genuine strokes submitted.', );
+  	});
+  	var image_data = canvas.toDataURL();
+	console.log('dataurl length', image_data.length);
+  	//signature_list[label].push(image_data);
+  	submit_one(formId, id, 'genuine-dataurl', image_data, stamp, function(){
+  		logger.log('Genuine signature submitted.');
+  		
+  	});
+  	app.add_genuine(label, image_data, stroke_data);
+  	
+  });
+  $("#button_download_target").click(function(){
+		var passphrase = $("#input_passphrase").val().toUpperCase();
+
+  	var sheetId = decrypt(sheetId_enc, passphrase);
+		if(!sheetId){
+			//console.log('invalid passphrase!')
+			logger.invalid_pass();
+			return;
+		}
+		update_namelist();
+		var target_name = $('#input_target').val();
+		var row = name_list[passphrase].indexOf(target_name);
+    if(row < 0){
+    	logger.invalid_name();
+    	return;
+    }
+    saveCookie();
+    row += 1;
+	get_target(sheetId, row, 2, function(data){
+		// handle data
+		var dataurl = data.entry.gs$cell.$t;
+		if(dataurl.indexOf('base64')<0){
+			logger.log("No signature to imitate");
+			$("#sig-image").attr('src', '');
+			return;
+		}
+		$("#sig-image").attr('src', dataurl);
+		logger.log('Target signature downloaded!');
+	});
+
+  });
+$("#button_upload_forged").click(function(){
+	var passphrase = $("#input_passphrase").val().toUpperCase();
+
+  	var formId = decrypt(formId_enc, passphrase);
+	if(!formId){
+		//console.log('invalid passphrase!')
+		logger.invalid_pass()
+		return;
+	}
+	var target_name = $('#input_target').val();
+	if(name_list[passphrase].indexOf(target_name) < 0){
+    	logger.invalid_name();
+    	return;
+    }
+	saveCookie();
+	
+	var d = new Date();
+    var stamp = d.toUTCString();
+    var id = target_name + ';'+ CryptoJS.SHA256($('#sig-image').attr('src')).toString().substr(0,8); //encrypt(id, passphrase);
+    logger.log('Submitting data ...');
+    
+  	var stroke_data = sel.signature()
+  	var stroke_str = stroking_b64(stroke_data);
+  	console.log('stroke string length', stroke_str.length);
+  	submit_one(formId, id, 'forged-strokearray', stroke_str, stamp, function(){
+  		console.log('Forged strokes submitted.');
+  	});
+  	var image_data = canvas.toDataURL();
+	console.log('dataurl length', image_data.length);
+  	submit_one(formId, id, 'forged-dataurl', image_data, stamp, function(){
+  		logger.log('Forged signature submitted.');
+  	});
+
+});
+$("#button_get_info").click(function(){
+	var passphrase = $("#input_passphrase").val().toUpperCase();
+  	var sheetId = decrypt(sheetId_enc, passphrase);
+		if(!sheetId){
+			//console.log('invalid passphrase!')
+			logger.invalid_pass();
+			return;
+		}
+		update_namelist();
+		var student_name = $('#input_name').val();
+		var row = name_list[passphrase].indexOf(student_name);
+		if(row < 0){
+    	logger.invalid_name();
+    	return;
+    }
+    saveCookie();
+    row += 1;
+	get_target(sheetId, row, 1, function(data){
+		// handle data
+		var genuine_count = parseInt(data.entry.gs$cell.$t);
+		get_target(sheetId, row, 3, function(data){
+			var forged_count = parseInt(data.entry.gs$cell.$t);
+			logger.log((genuine_count + forged_count) + ' signatures, '+genuine_count + ' genuine.');
+		});
+
+	});
+		
+
+});
+	
+}); // document ready
+//$(window).on('unload', onExit);
+</script>
   
 	
 	
