@@ -112,7 +112,7 @@
 			    <label class="mdl-textfield__label" for="input_target">Target's Surname, First Name...</label>
 			  </div>
 			  <div id="image_container" style="width: 100%; height: 100%;">
-		  		<img id="sig-image" width="255" height="127" style="width: 100%; height: 100%;">
+		  		<img id="sig-image" width="255" height="127" style="width: 100%;">
 		    </div>
 			</form>
 			
@@ -305,17 +305,17 @@
 		
 	$(function(){
 		var canvas = document.getElementById('sig-canvas');
-	  var ctx = canvas.getContext('2d');
-	  var scaling = parseFloat($(canvas).attr('width'))/parseFloat($(canvas).css('width'));
-	  console.log('canvas scaling', scaling);
-	  ctx.strokeStyle = 'blue';
-	  ctx.lineWidth = 2;
-	  ctx.lineJoin = 'round'
+	    var ctx = canvas.getContext('2d');
+	    var scaling = parseFloat($(canvas).attr('width'))/parseFloat($(canvas).css('width'));
+	    console.log('canvas scaling', scaling);
+	    ctx.strokeStyle = 'blue';
+	    ctx.lineWidth = 2;
+	    ctx.lineJoin = 'round'
 		initUI(canvas);
 		
 		$("#input_passphrase").focusout(update_namelist)
-		// $("#input_name").focus(update_namelist);
-		// $("#input_target").focus(update_namelist);
+		$("#input_name").focus(update_namelist);
+		$("#input_target").focus(update_namelist);
 		
 	  
 	  // source image mouse control
