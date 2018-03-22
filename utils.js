@@ -226,11 +226,23 @@ function decrypt_secret(json_url, passphrase, handle){
 
 }
 
-function stroking_zip(stroke_arr){
-  var zip = JSZip();
-  var data = stroke_arr.map(function(e){return e.map(function(e){return [e.x,e.y]})})
-  var data = JSON.stringify(data);
+function stroking_b64(stroke_arr){
+  //var zip = JSZip();
+  var data = stroke_arr.map(function(e){
+    return btoa(String.fromCharCode.apply(null, [].concat.apply([], e.map(function(e){return [e.x,e.y]}))));
+  });
+  return data.join(';');
+  
+  // data.forEach(function(e,i,arr){
+  //   zip.file(String(i+1), e, {binary:true, compression:"DEFLATE"})
+  // });
+  //zip.generateAsync({type:"string", compression: "DEFLATE"}).then(handle);
 
-  zip.generateAsync({type:"string", compression: "DEFLATE"});
-
+}
+function b64_stroking(b64str){
+  return b64str.split(';').map(function(e){
+    return atob(e).split('').map(function(e,i){
+      return e.charCodeAt(0);
+    });
+  })
 }

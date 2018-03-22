@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 
 import numpy as np, pandas as pd, hashlib, json
+from Crypto.Cipher import AES
+
+def encrypt(msg, passphrase):
+
+	pass
+
+
+def decrypt(enc_msg, passphrase):
+
+	pass
 
 df = pd.read_csv('secret/info.csv');
 d = df.values.tolist()
