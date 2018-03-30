@@ -1,42 +1,44 @@
 
 
-# Instructions for using the signature generating tool
+## Instruction for using the signature collecting tool
 
+(This instruction can be downloaded as [pdf](https://musicai.github.io/SV/instruction/instruction.pdf))
 
+### Supported Platform
 
-## Supported Platform
-
-Desktop Browser with mouse events, Andoid/iOS devices with touch events.
+Desktop browser with mouse events, Andoid/iOS devices with touch events.
 
 Other pointer events like stylus or pens currently are not supported (e.g., Surface)
 
-
-
-## Steps of using the tool
-
-Go to https://musicai.github.io/SV
+Go to https://musicai.github.io/SV . You may try to draw on the canva to see if your browser is supported.
 
 ![WechatIMG248](WechatIMG248.jpeg)
 
-Input the passphrase posted on Moodle.
 
-Select `genuine` or `forged`
+
+### Steps of using the tool
+
+**Step 1**: Input the passphrase posted on Moodle.
+
+**Step 2**: Select `genuine` to submit your genuin signatures or `forged` to imitate others' signatures.
 
 ![s1](s1.png)
 
-**To submit genuine signatures**:
+**To submit genuine signatures** (step 3 ~ 8):
 
-Input your Surname and first name. If the passphrase is correct, you can sellect from the auto-completion results. Note the name should be exactly as in your records on Moodle.
+**Step 3**: Input your surname and first name. 
 
-You can click the info button to see the number of signatures you already collected:
+If the passphrase is correct, you can sellect from the auto-completion results. Note the name should be exactly the same as in your records on Moodle.
+
+**Step 4**: If the name is correct, you can click the info button to see the number of signatures you already collected.
 
 ![s0](s0.png)
 
-Then you can draw on the box below.
+**Step 5**: Draw your signature on the box below. It may be easier to sign on the screen tablets or phones using fingers.
 
-After filling in your personal information (including your student ID and Assignment score)  you can click the upload button to submit your signature. Note that your name, student ID and score should be the correct (these secret information is used for authentication). And the label is optional (for example, if you have different vertions a signatures, you may need the labels to distinguish).
+**Step 6**: Fill in your personal information (student ID and Assignment 1 score) and the optional label.  
 
-
+Note that your name, student ID and score should be correct (these secret information is used for authentication). If you have different vertions of signatures, you may need the optional labels to distinguish.
 
 
 
@@ -44,15 +46,19 @@ After filling in your personal information (including your student ID and Assign
 
 ![s2](s2.png)
 
+**Step 7**: Click the upload button to submit your signature. 
 
+After successful upload, you can see the number on the badge increases by one. Then you can safely clear the canvas and draw another new one. The uploaded signatures will be saved temporarily before you leave the page. 
 
-Click the upload button, you can see the number on the badge increase one. Then you can safely clear the canvas and draw another new one. All saved signature in one session can be downloaded as a zip. The zip file will also include the sequences of $(x,y)$ coordinates of your signatures (if you want to experiment on the time dependency aspect)
+**Step 8**: Save all signatures in one session to a zip file. 
+
+The zip file also contains a sequence of strokes (arrays of $(x,y)$ coordinates), through which you may to experiment the time dependency aspect of your signatures
 
 ![s3](s3.png)
 
 
 
-Recently, we add a download button next to the info button for you to download all uploaded data (with .csv files containing labels and timestamps). These files are updated every hour (later we may also include preprocessed data, currently you can use [sample code](https://musicai.github.io/SV/tool/index.html) for image processing and data normalization)
+Recently, we add a download button next to the info button for you to download all uploaded data (with .csv files containing labels and timestamps). These files are updated on an hourly basis (later we may also include normalized data, currently you can use [sample code](https://musicai.github.io/SV/tool/index.html) for image processing and data normalization)
 
 ![](/Coding/WEBS/SV/instruction/s6.png)
 
@@ -60,13 +66,19 @@ Recently, we add a download button next to the info button for you to download a
 
 
 
-**To submit forged signatures**:
+**To submit forged signatures** (step 9 ~ 11):
 
-You switch to the `forged` tab, and input the target name (using auto-completion again). Then click the download button (next to the upload button). If your target already upload the genuine signature, it will be displayed below for you to imitate.
+**Step 9**: Switch to the `forged` tab, and input the target name (using auto-completion again). 
+
+**Step 10**: Lick the download button (next to the upload button). 
+
+If your target already upload the genuine signature, it will be displayed below for you to imitate.
 
 ![s4](s4.png)
 
-After drawing the forged signature, click the upload button to submit. Note that the number on the badge won't change, and you will not be able to download these signature; instead,  you can ask friends to pick you as target and later on we will give you these forged signatures for training.
+**Step 11**: Draw the forged signature in the box below, click the upload button to submit. 
+
+Note that the number on the badge won't change, and you will not be able to download these signatures. You can ask friends to pick you as target and later on you will be able to download these forged signatures for training.
 
 ![s5](s5.png)
 
@@ -82,11 +94,11 @@ After drawing the forged signature, click the upload button to submit. Note that
 
 
 
-We will continuously update this section. 
+This section is ontinuously updated. 
 
 
 
-**Q**: Can I remove some of the uploaded data?
+**Q**: Can I remove part of the uploaded data?
 
 **A**: You can use the label and timestamp to select the training data.
 
@@ -94,14 +106,20 @@ We will continuously update this section.
 
 **Q**: What should I do if the canvas drawing does not work?
 
-**A**: Try to switch browsers first if you find troubles using the tool (Chrome and Firefox are recommended). 
+**A**: Try to switch browsers first if you find troubles using the tool (Chrome and Firefox are recommended). Also make sure you can access Google services, otherwise you may need  VPN (especially when you are in mainland China).
 
 
 
 **Q**: Can I use other tool to collect the data?
 
-**A**: Sure. We provide this tool for you just to make it easy to collect forged signatures from your friends. If you prefer scanning/taking photo of signatures on the paper, you may need to preprocess the data on your own.
+**A**: Sure. We provide this tool just to make it easy to collect forged signatures from your friends. If you prefer scanning/taking photo of signatures on the paper, you may need to preprocess the data on your own.
 
 
 
-You can also email me if you have other questions or suggestions.
+**Q**: What is in the zip file after I download all signatures?
+
+**A**: All the `png` and `json` files uploaded will be placed under the directory `original/`, and `png.csv` and `json.csv` contains meta info of the dataset such as `signature_id`, `label`, `time_stamp`, `type` (genuine or forged), etc. For genuine signatures, `label` may be empty if you did not specify when uploaded them. For forged signature, `label` is the `signature_id` of referenced genuine signature. Invalid `signature_id` like `e3b0c442` and `eb045d78` just stand for empty signatures (the imposters may randomly draw something without downloading your genuine signature for reference).
+
+
+
+You are welcome to email me if you have further questions or other suggestions.
