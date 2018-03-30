@@ -358,9 +358,11 @@ $("#button_download_all").click(function(){
     var id = [student_name, $('#input_sid').val(), 
       (parseFloat(score)*100)>>0].join(';');
     var id = CryptoJS.SHA256(id).toString().substr(0,8);
+    var d = new Date();
+    var stamp = CryptoJS.SHA256(d.toUTCString()).toString().substr(0,8);
 
     var zip_url = "https://musicai.gitlab.io/musicAI.gitlab.io/" + id + '/svdata_' +
-      student_name.replace(' ', '_').replace(',', '') + '.zip';
+      student_name.replace(' ', '_').replace(',', '') + '.zip?t=' + stamp;
     window.open(zip_url, '_blank');
 
 });
