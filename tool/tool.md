@@ -1,9 +1,12 @@
 
 ## Image processing tools
 Install python libraries `Pillow` and `scikit-image` first.
+
 References:
 [PIL Image](https://pillow.readthedocs.io/en/3.1.x/reference/Image.html)
 [scikit-image](http://scikit-image.org/docs/stable/)
+
+Download this notebook and sample images in [zip](https://musicai.github.io/SV/tool/tool.zip).
 
 
 ```python
@@ -15,6 +18,7 @@ from skimage.filters import threshold_local # pip install scikit-image
 ```
 
 ### Image processing utilities
+image binarization; normalization of the orientation, size and pixel value; etc.
 
 
 ```python
@@ -95,7 +99,9 @@ def process_multiple(raw_img, n_rows=1, n_cols=1, block_size=75, offset=70):
     for i in range(n_rows):
         for j in range(n_cols):
             left, top = step_w*j, step_h * i
-            box = np.int64(np.round([left-tol, top-tol, left + step_w + tol, top + step_h + tol]))
+            box = np.int64(np.round([left-tol, top-tol, 
+                                     left + step_w + tol, 
+                                     top + step_h + tol]))
             # find best orientation and crop the signature
             res[i, j] = opt_rotate(bin_img.crop(box), padding=1)
             plt.subplot(n_rows, n_cols, i*n_cols + j + 1)
@@ -109,7 +115,7 @@ def process_multiple(raw_img, n_rows=1, n_cols=1, block_size=75, offset=70):
 
 ```
 
-Compare to digits in MNIST dataset, the signature has larger width/height ratio. One trick is only to train SVM on a specific square region in the bounding box of the signature. You can also explore other methods to use the entire signature without training too many model parameters.
+Compared to digits in MNIST dataset, the signature has larger width/height ratio. One trick is to only train SVM on a specific square region in the bounding box of the signature. You can also explore other methods to use the entire signature without training too many model parameters.
 
 
 ```python
@@ -164,8 +170,7 @@ img_reduced.save('normalized_signature.png')
     image size (255, 127)
     bbox (8, 42, 185, 113)
     reduced to (76, 28)
-
-
+    
 
 ![png](output_7_1.png)
 
@@ -207,8 +212,7 @@ stroke_img_reduced.save('normalized_stroke.png')
     image size (256, 128)
     bbox (8, 42, 186, 113)
     reduced to (76, 28)
-
-
+    
 
 ![png](output_8_1.png)
 
@@ -259,11 +263,50 @@ signatures[0,0].save('normalized_photo.png')
 
 ```python
 # the matrix data for training
-img_arr = img2arr(img_reduced)[:,:,0] # ignore the alpha channel
+img_arr = img2arr(img_reduced)[:,:,-1] # use the alpha channel, highter more opaque
+# or get from normalized signature saved previously
+#img_arr = img2arr(Image.open('normalized_signature.png'))[:,:,-1]
 print(img_arr.shape, img_arr.dtype)
 ```
 
     (28, 76) uint8
+    
+
+```python
+​```python
+from scipy.ndimage.measurements import center_of_mass
+center = np.round(center_of_mass(img_arr))
+print('center of mass', center)
+
+plt.subplots(1,3,figsize=(15,5))
+ax = plt.subplot(1,3,1)
+plt.imshow(img_arr, cmap='gray_r')
+h = img_arr.shape[0]
+left = int(center[1]) - h//2
+ax.add_patch(
+    patches.Rectangle((left-1, -1), h+1, h+1,
+                            linewidth=1, edgecolor='r', facecolor='none')
+)
+
+# for example, only use the 28x28 square around the center of mass
+# you can construct other features to utilize the entire signature.
+mat = img_arr[:, left:left+h]
+print('size', mat.shape, 'range', [mat.min(), mat.max()], 
+      'thresholded density', (mat>127).sum()/(h*h))
+plt.subplot(1,3,2)
+plt.imshow(mat, cmap='gray_r')
+
+plt.subplot(1,3,3)
+plt.imshow(mat>127, cmap='gray_r')
+
+plt.show()
+```
+
+    center of mass [11. 39.]
+    size (28, 28) range [0, 255] thresholded density 0.1288265306122449
+    
+
+![png](output_13_1.png)
 
 
 You will probably need some data augmentation to fully utilize limited amount of data, like:
