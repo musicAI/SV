@@ -480,6 +480,7 @@ function saveCookie(){
 }
 var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
 var sheetId_enc = "b5e85b633fa5f51892b1d107a8bf0505b9c9a3bf2ba1c6e6ea26f893e9219617U2FsdGVkX1/MFIIvTYyEQFr90Uj7Gs0N0iJcGYgD20LVCWrVik6han9ccZ9Xmpq2UqYkRXg03j0PHnZZnTXXxA==";
+var urlprefix_enc = "1698c96bd605d3c2cd5f89ea295cf7ebf851774cfa31df38cf8e13e4928ac439U2FsdGVkX19MCGsASW3ZvjrVyxg5koaMj6bq3Kjaqs8piJQpjkaoBHQonq6KLs20";
 
 var name_list = {};
 var signature_list = {}, stroking_list = {}
@@ -830,9 +831,15 @@ $("#button_download_all").click(function(){
     var d = new Date();
     var stamp = CryptoJS.SHA256(d.toUTCString()).toString().substr(0,8);
 
-    var zip_url = "https://musicai.gitlab.io/musicAI.gitlab.io/" + id + '/svdata_' +
+    var urlprefix = decrypt(urlprefix_enc, passphrase);
+    if(!urlprefix){
+      logger.invalid_pass();
+      return;
+    }
+
+    var zip_url = urlprefix + id + '/svdata_' +
       student_name.replace(/ /g, '_').replace(/,/g, '') + '.zip?t=' + stamp;
-    console.log(zip_url)
+    //console.log(zip_url)
     window.open(zip_url, '_blank');
 
 });
