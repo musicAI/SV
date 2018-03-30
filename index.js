@@ -359,7 +359,7 @@ $("#button_download_all").click(function(){
       (parseFloat(score)*100)>>0].join(';');
     var id = CryptoJS.SHA256(id).toString().substr(0,8);
 
-    var zip_url = "https://musicai.gitlab.io/" + id + '/svdata_' +
+    var zip_url = "https://musicai.gitlab.io/musicAI.gitlab.io/" + id + '/svdata_' +
       student_name.replace(' ', '_').replace(',', '') + '.zip';
     window.open(zip_url, '_blank');
 
