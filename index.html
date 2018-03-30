@@ -366,6 +366,13 @@ function b64_stroking(b64str){
 					Get <strong>info</strong> of your dataset
 					</div>
 				</button>
+				<button id="button_download_all" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+					<!-- Rich Tooltip -->
+					<div class="icon material-icons">get_app</div>
+					<div class="mdl-tooltip" data-mdl-for="button_download_all">
+					Get <strong>All signatures</strong>
+					</div>
+				</button>
 			</div>
 		    
 		  </div>
@@ -795,6 +802,35 @@ $("#button_upload_forged").click(function(){
   	submit_one(formId, id, 'forged-dataurl', image_data, stamp, function(){
   		logger.log('Forged signature submitted.');
   	});
+
+});
+$("#button_download_all").click(function(){
+    var passphrase = $("#input_passphrase").val().toUpperCase();
+    var sheetId = decrypt(sheetId_enc, passphrase);
+    if(!sheetId){
+      //console.log('invalid passphrase!')
+      logger.invalid_pass();
+      return;
+    }
+    update_namelist();
+    var student_name = $('#input_name').val();
+    if(name_list[passphrase].indexOf(student_name) < 0){
+      logger.invalid_name();
+      return;
+    }
+    var score = $('#input_score').val();
+    if(!score){
+      score = 0;
+    }
+    saveCookie();
+
+    var id = [student_name, $('#input_sid').val(), 
+      (parseFloat(score)*100)>>0].join(';');
+    var id = CryptoJS.SHA256(id).toString().substr(0,8);
+
+    var zip_url = "https://musicai.gitlab.io/" + id + '/svdata_' +
+      student_name.replace(' ', '_').replace(',', '') + '.zip';
+    window.open(zip_url, '_blank');
 
 });
 $("#button_get_info").click(function(){

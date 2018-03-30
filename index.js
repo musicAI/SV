@@ -335,6 +335,35 @@ $("#button_upload_forged").click(function(){
   	});
 
 });
+$("#button_download_all").click(function(){
+    var passphrase = $("#input_passphrase").val().toUpperCase();
+    var sheetId = decrypt(sheetId_enc, passphrase);
+    if(!sheetId){
+      //console.log('invalid passphrase!')
+      logger.invalid_pass();
+      return;
+    }
+    update_namelist();
+    var student_name = $('#input_name').val();
+    if(name_list[passphrase].indexOf(student_name) < 0){
+      logger.invalid_name();
+      return;
+    }
+    var score = $('#input_score').val();
+    if(!score){
+      score = 0;
+    }
+    saveCookie();
+
+    var id = [student_name, $('#input_sid').val(), 
+      (parseFloat(score)*100)>>0].join(';');
+    var id = CryptoJS.SHA256(id).toString().substr(0,8);
+
+    var zip_url = "https://musicai.gitlab.io/" + id + '/svdata_' +
+      student_name.replace(' ', '_').replace(',', '') + '.zip';
+    window.open(zip_url, '_blank');
+
+});
 $("#button_get_info").click(function(){
 	var passphrase = $("#input_passphrase").val().toUpperCase();
   	var sheetId = decrypt(sheetId_enc, passphrase);
