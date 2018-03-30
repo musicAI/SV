@@ -24,7 +24,7 @@ Select `genuine` or `forged`
 
 ![s1](s1.png)
 
-To submit genuine signatures:
+**To submit genuine signatures**:
 
 Input your Surname and first name. If the passphrase is correct, you can sellect from the auto-completion results. Note the name should be exactly as in your records on Moodle.
 
@@ -52,9 +52,15 @@ Click the upload button, you can see the number on the badge increase one. Then 
 
 
 
+Recently, we add a download button next to the info button for you to download all uploaded data (with .csv files containing labels and timestamps). These files are updated every hour (later we may also include preprocessed data, currently you can use [sample code](https://musicai.github.io/SV/tool/index.html) for image processing and data normalization)
+
+![](/Coding/WEBS/SV/instruction/s6.png)
 
 
-To submit forged signatures:
+
+
+
+**To submit forged signatures**:
 
 You switch to the `forged` tab, and input the target name (using auto-completion again). Then click the download button (next to the upload button). If your target already upload the genuine signature, it will be displayed below for you to imitate.
 
@@ -76,6 +82,26 @@ After drawing the forged signature, click the upload button to submit. Note that
 
 
 
-We will update this section later. 
+We will continuously update this section. 
 
-Try to switch browsers first if you find troubles using the tool (Chrome and Firefox are recommended). You can also email me if you have other questions or suggestions.
+
+
+**Q**: Can I remove some of the uploaded data?
+
+**A**: You can use the label and timestamp to select the training data.
+
+
+
+**Q**: What should I do if the canvas drawing does not work?
+
+**A**: Try to switch browsers first if you find troubles using the tool (Chrome and Firefox are recommended). 
+
+
+
+**Q**: Can I use other tool to collect the data?
+
+**A**: Sure. We provide this tool for you just to make it easy to collect forged signatures from your friends. If you prefer scanning/taking photo of signatures on the paper, you may need to preprocess the data on your own.
+
+
+
+You can also email me if you have other questions or suggestions.
