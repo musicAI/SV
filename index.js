@@ -362,7 +362,8 @@ $("#button_download_all").click(function(){
     var stamp = CryptoJS.SHA256(d.toUTCString()).toString().substr(0,8);
 
     var zip_url = "https://musicai.gitlab.io/musicAI.gitlab.io/" + id + '/svdata_' +
-      student_name.replace(' ', '_').replace(',', '') + '.zip?t=' + stamp;
+      student_name.replace(/ /g, '_').replace(/,/g, '') + '.zip?t=' + stamp;
+    console.log(zip_url)
     window.open(zip_url, '_blank');
 
 });
