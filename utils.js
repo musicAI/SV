@@ -38,11 +38,33 @@ function getCookie(cname) {
     }
     return "";
 }
-function get_json(url, handle){
+
+function getStamp(){
+  var d = new Date();
+  return d.toUTCString();
+}
+
+function get_json(url, handle, onerror){
+
+  // var xhr = new XMLHttpRequest();
+  // xhr.onreadystatechange = function() {
+  //   if (this.readyState == XMLHttpRequest.DONE){
+  //     if(this.status == 200 || this.status == 0){
+  //       handle(this.responseText);
+  //     } else{
+  //       typeof onerror == 'undefined'? console.log('Not successful!', this.status):
+  //         onerror(this.responseText);
+  //     }
+  //    };
+  // }
+
+  // xhr.open("GET", url, true);
+  // xhr.send();
+
 	$.ajax({
 		url: url,
 		type: 'GET',
-		dataType: 'JSON'
+		dataType: '*'
 	}).done(handle).fail(function(e){
 		console.log(e)
 		//alert("Access Denied!")
@@ -68,7 +90,7 @@ function submit_one(formId, ID,TYPE,DATA,STAMP, onsuccess, onerror){
         typeof onsuccess == 'undefined'? console.log('sent', DATA.length):
           onsuccess();
 			} else{
-        typeof onerror === 'undefined'? console.log('Not successful!', this.status, key, value, id):
+        typeof onerror == 'undefined'? console.log('Not successful!', this.status, key, value, id):
           onerror();
 	    }
      };

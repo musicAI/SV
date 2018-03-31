@@ -235,8 +235,7 @@ $(function(){
 	saveCookie();
 	
 	
-	var d = new Date();
-    var stamp = d.toUTCString();
+    var stamp = getStamp();
     var score = $('#input_score').val();
     if(!score){
     	score = 0;
@@ -318,8 +317,7 @@ $("#button_upload_forged").click(function(){
     }
 	saveCookie();
 	
-	var d = new Date();
-    var stamp = d.toUTCString();
+    var stamp = getStamp();
     var id = target_name + ';'+ CryptoJS.SHA256($('#sig-image').attr('src')).toString().substr(0,8); //encrypt(id, passphrase);
     logger.log('Submitting data ...');
     
@@ -339,7 +337,8 @@ $("#button_upload_forged").click(function(){
 $("#button_download_all").click(function(){
     var passphrase = $("#input_passphrase").val().toUpperCase();
     var sheetId = decrypt(sheetId_enc, passphrase);
-    if(!sheetId){
+    var urlprefix = decrypt(urlprefix_enc, passphrase);
+    if(!sheetId || !urlprefix){
       //console.log('invalid passphrase!')
       logger.invalid_pass();
       return;
@@ -358,20 +357,18 @@ $("#button_download_all").click(function(){
 
     var id = [student_name, $('#input_sid').val(), 
       (parseFloat(score)*100)>>0].join(';');
-    var id = CryptoJS.SHA256(id).toString().substr(0,8);
-    var d = new Date();
-    var stamp = CryptoJS.SHA256(d.toUTCString()).toString().substr(0,8);
+    id = CryptoJS.SHA256(id).toString().substr(0,8);
+    var stamp = CryptoJS.SHA256(getStamp()).toString().substr(0,8);
 
-    var urlprefix = decrypt(urlprefix_enc, passphrase);
-    if(!urlprefix){
-      logger.invalid_pass();
-      return;
-    }
 
     var zip_url = urlprefix + id + '/svdata_' +
       student_name.replace(/ /g, '_').replace(/,/g, '') + '.zip?t=' + stamp;
     //console.log(zip_url)
+    get_json(urlprefix + 'date', function(data){
+      logger.log('Zip updated at ' + new Date(data));
+    }, function(e){logger.log('Failed to download all signatures')});
     window.open(zip_url, '_blank');
+    
 
 });
 $("#button_get_info").click(function(){
