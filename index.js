@@ -9,9 +9,6 @@ function saveCookie(){
   }
   console.log('Cookies saved.');
 }
-var formId_enc = "cdc858c0b42d8bbf6a5daef1f71ef0569617b056173329dd64cdae5a00ec1bc9U2FsdGVkX1+w2CNIwH/qu+2gOKtfRYmEQb3gckRQdgXkiywm8Nq0n725JFPvv48PqY+cZCHKkqbAR4efyb1DUjP0A/oSaTEoX2gL5u6UkTU=";
-var sheetId_enc = "fca29655031a85bf0e9a1db621f5348ba70ca9bf50874b664f44c0c3b37de924U2FsdGVkX1+clThSvznmETaNMwTQCRS+YCsgJ3H7FHMV4CX8Xr9sfzk4q16LyH+fIVVrySreiyJqiSeKxzho+Q==";
-var urlprefix_enc = "1698c96bd605d3c2cd5f89ea295cf7ebf851774cfa31df38cf8e13e4928ac439U2FsdGVkX19MCGsASW3ZvjrVyxg5koaMj6bq3Kjaqs8piJQpjkaoBHQonq6KLs20";
 
 var name_list = {};
 var signature_list = {}, stroking_list = {}
