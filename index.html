@@ -1,37 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title> Collect Data for Signature Verification </title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
-
-	<script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"
-        integrity="sha384-lp4k1VRKPU9eBnPePjnJ9M2RF3i7PC30gXs70+elCVfgwLwx1tv5+ctxdtwxqZa7"
-        crossorigin="anonymous"></script>
-  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
-  <script>
-    function insert_script(url, sec){
-    	var head = typeof sec == 'undefined'? document.getElementsByTagName('head')[0]:
-    		document.getElementsByTagName('body')[0];
-
-    	var script = document.createElement('script');
-		script.type = 'text/javascript';
-		//script.onload = function() {}
-		var dt = new Date().toUTCString()
-		script.src = url+'?t=' + encodeURIComponent(dt);
-		head.appendChild(script);
-	}
-	// insert_script('utils.js');
-	// insert_script('info.js');
-	//insert_script('index.js', 'body');
-  </script>
-  <script>
+  <head>
+    <title> Collect Data for Signature Verification </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js" integrity="sha384-lp4k1VRKPU9eBnPePjnJ9M2RF3i7PC30gXs70+elCVfgwLwx1tv5+ctxdtwxqZa7" crossorigin="anonymous"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+    <script>
 function encrypt(unencrypted, passphrase){
 	var encrypted = CryptoJS.AES.encrypt(unencrypted, passphrase);
   	var hmac = CryptoJS.HmacSHA256(encrypted.toString(), CryptoJS.SHA256(passphrase).toString()).toString();
@@ -304,191 +285,146 @@ function b64_stroking(b64str){
 }
 
 </script>
-  <script>
+    <script>
 ﻿var static_info = {"secret":"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"}
 </script>
-
-  
-</head>
-<body>
-  <div class="mdl-card mdl-shadow--2dp">
-	  <div class="mdl-card__title">
-	    <h2 class="mdl-card__title-text">Collect Data for Simple Signature Verification</h2>
-	  </div>
-	  <!-- <div class="mdl-card__media">
-	    <img src="photo.jpg" width="220" height="140" border="0" alt="" style="padding:20px;">
-	  </div> -->
-
-	  <div class="mdl-card__supporting-text mdl-card--border">
-	  	<form action="#">
-	  	  <a> To prevent abuse, input the passphrase posted on Moodle. </a>
-		  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-		    <input class="mdl-textfield__input" type="password" id="input_passphrase">
-		    <label class="mdl-textfield__label" for="input_passphrase">Passphrase...</label>
-		  </div>
-		  <a> Create your genuine signature or forge others'. </a>
-		</form>
-	  </div>
-	  
-	  
-	  
-		<div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect mdl-card--border">
-		  <div class="mdl-tabs__tab-bar">
-		      <a href="#genuine-panel" class="mdl-tabs__tab is-active">Genuine</a>
-		      <a href="#forged-panel" class="mdl-tabs__tab">Forged</a>
-		  </div>
-
-		  <div class="mdl-tabs__panel is-active" id="genuine-panel">
-		  	<div class="mdl-card__supporting-text mdl-card--border">
-		  	<!-- Colored FAB button -->
-					
-				<form action="#">
-				  <!-- <div class=""> -->
-				  	<a> Fill in your info below for authentication</a>
-				  <!-- </div> -->
-
-				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-				    <input class="mdl-textfield__input" type="text" id="input_name">
-				    <label class="mdl-textfield__label" for="input_name">Your Surname, First name...</label>
-				  </div>
-				<!-- </form> -->
-				<!-- Numeric Textfield with Floating Label -->
-				<!-- <form action="#"> -->
-				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-				    <input class="mdl-textfield__input" type="text" pattern="[0-9]*" id="input_sid">
-				    <label class="mdl-textfield__label" for="input_sid">Student ID...</label>
-				    <span class="mdl-textfield__error">Input is not a valid ID!</span>
-				  </div>
-				<!-- </form> -->
-				<!-- Numeric Textfield with Floating Label -->
-				<!-- <form action="#"> -->
-				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-				    <input class="mdl-textfield__input" type="text" pattern="[0-9]*(\.[0-9]*)?" id="input_score">
-				    <label class="mdl-textfield__label" for="input_score">Assignment 1 Score...</label>
-				    <span class="mdl-textfield__error">Input is not a number!</span>
-				  </div>
-				  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-				    <input class="mdl-textfield__input" type="text" id="input_label">
-				    <label class="mdl-textfield__label" for="input_label">Optional label...</label>
-				  </div>
-				</form>
-				</form>
-				<!-- Accent-colored raised button with ripple -->
-				<button id="button_upload_genuine" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-					<!-- Rich Tooltip -->
-					<div class="icon material-icons">cloud_upload</div>
-					<div class="mdl-tooltip" data-mdl-for="button_upload_genuine">
-					Upload <strong>genuine signature</strong>
-					</div>
-				</button>
-				<button id="button_get_info" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-					<!-- Rich Tooltip -->
-					<div class="icon material-icons">info</div>
-					<div class="mdl-tooltip" data-mdl-for="button_get_info">
-					Get <strong>info</strong> of your dataset
-					</div>
-				</button>
-				<button id="button_download_all" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-					<!-- Rich Tooltip -->
-					<div class="icon material-icons">get_app</div>
-					<div class="mdl-tooltip" data-mdl-for="button_download_all">
-					Get <strong>All signatures</strong>
-					</div>
-				</button>
-			</div>
-		    
-		  </div>
-		  
-		  <div class="mdl-tabs__panel" id="forged-panel">
-		  	<div class="mdl-card__supporting-text mdl-card--border">
-		  	
-			
-			<form action="#">
-			  
-			  <a> Select a target and download signature to imitate (using auto-completion!)</a>
-			  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-			    <input class="mdl-textfield__input" type="text" id="input_target">
-			    <label class="mdl-textfield__label" for="input_target">Target's Surname, First Name...</label>
-			  </div>
-			  <div id="image_container" style="width: 100%; height: 100%;">
-		  		<img id="sig-image" width="255" height="127" style="width: 100%;">
-		    </div>
-			</form>
-			
-		  <button id="button_download_target" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-					<!-- Rich Tooltip -->
-					<div class="icon material-icons">get_app</div>
-					<div class="mdl-tooltip" data-mdl-for="button_download_target">
-					Get <strong>signature</strong>
-					</div>
-			</button>
-		  <button id="button_upload_forged" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
-		  	<!-- Rich Tooltip -->
-				<div class="icon material-icons">cloud_upload</div>
-				<div class="mdl-tooltip" data-mdl-for="button_upload_forged">
-				Upload <strong>forged signature</strong>
-				</div>
-			</button>
-			</div>
-
-		  </div>
-
-		</div> <!-- End of tabs -->
-
-		<div class="mdl-card__supporting-text">
-			<div class="mdl-card__supporting-text">
-	  	<a id="status"></a>
-	  	</div>	
-	  	
-	  	<div id="canvas_container" style="border: 1pt solid black; width: 100%;">
-		  		<canvas id="sig-canvas" width="255" height="127" style="width: 100%;"></canvas>
-		  </div>
-		  
-	  </div>
-	  <div class="mdl-card__actions">
-	  	<div>
-	  	<button id="button_reset" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-	    	<div class="icon material-icons">delete</div>
-	        <a> Clear Canvas </a>
-	    </button>
-	    <span id="badge_saved_count" class="mdl-badge" data-badge="0">Saved</span>
-	    <!-- <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
-		  <i class="icon material-icons">add</i>
-		  <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
-			Add <strong>canvas</strong> (not implemented)
-			</div>
-		</button> -->
-		<div>
-
-	  	<div id="container">
-	  	  <button id="button_save" class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
-	    	<div class="icon material-icons">assignment_returned</div>
-	        <a> Save Signatures to zip </a>
-	      </button>
-
-	  	</div>
-	  	
-	    
-    <!-- <div class="mdl-layout-spacer"></div>
-    <i class="material-icons">event</i> -->
-	  </div>
-	  <div id="snack-toast" class="mdl-js-snackbar mdl-snackbar">
-  			<div class="mdl-snackbar__text"></div>
-  			<button class="mdl-snackbar__action" type="button"></button>
-	  </div>
-	  
-
-		<footer class="mdl-mini-footer">
-		  <div class="mdl-mini-footer__left-section">
-		    <div class="mdl-logo">COMP3314</div>
-		    <ul class="mdl-mini-footer__link-list">
-		      <li><a href="tool/index.html" target="_blank">Tool</a></li>
-		      <li><a href="instruction/index.html" target="_blank">Instruction</a></li>
-		    </ul>
-		  </div>
-		</footer>
-  </div>  <!-- End of cards -->
-  <script>
+  </head>
+  <body>
+    <div class="mdl-card mdl-shadow--2dp">
+      <div class="mdl-card__title">
+        <h2 class="mdl-card__title-text">Collect Data for Simple Signature Verification</h2>
+      </div>
+      <!--
+      <div class="mdl-card__media">
+      <img src="photo.jpg" width="220" height="140" border="0" alt="" style="padding:20px;">
+      </div>
+      -->
+      <div class="mdl-card__supporting-text mdl-card--border">
+        <form action="#"><a> To prevent abuse, input the passphrase posted on Moodle. </a>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" id="input_passphrase" type="password">
+            <label class="mdl-textfield__label" for="input_passphrase">Passphrase...</label>
+          </div><a> Create your genuine signature or forge others&apos;. </a>
+        </form>
+      </div>
+      <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect mdl-card--border">
+        <div class="mdl-tabs__tab-bar"><a class="mdl-tabs__tab is-active" href="#genuine-panel">Genuine    </a><a class="mdl-tabs__tab" href="#forged-panel">Forged </a></div>
+        <div class="mdl-tabs__panel is-active" id="genuine-panel">
+          <div class="mdl-card__supporting-text mdl-card--border">
+            <!-- Colored FAB button-->
+            <form action="#">
+              <!-- <div class="">--><a> Fill in your info below for authentication</a>
+              <!-- </div>-->
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" id="input_name" type="text">
+                <label class="mdl-textfield__label" for="input_name">Your Surname, First name...</label>
+              </div>
+              <!-- </form>-->
+              <!-- Numeric Textfield with Floating Label-->
+              <!-- <form action="#">-->
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" id="input_sid" type="text" pattern="[0-9]*">
+                <label class="mdl-textfield__label" for="input_sid">Student ID... </label><span class="mdl-textfield__error">Input is not a valid ID!</span>
+              </div>
+              <!-- </form>-->
+              <!-- Numeric Textfield with Floating Label-->
+              <!-- <form action="#">-->
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" id="input_score" type="text" pattern="[0-9]*(.[0-9]*)?">
+                <label class="mdl-textfield__label" for="input_score">Assignment 1 Score...  </label><span class="mdl-textfield__error">Input is not a number!</span>
+              </div>
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" id="input_label" type="text">
+                <label class="mdl-textfield__label" for="input_label">Optional label...</label>
+              </div>
+            </form>
+            <!-- Accent-colored raised button with ripple-->
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="button_upload_genuine">
+              <!-- Rich Tooltip-->
+              <div class="icon material-icons">cloud_upload</div>
+              <div class="mdl-tooltip" data-mdl-for="button_upload_genuine">Upload <strong>genuine signature</strong></div>
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="button_get_info">
+              <!-- Rich Tooltip-->
+              <div class="icon material-icons">info</div>
+              <div class="mdl-tooltip" data-mdl-for="button_get_info">Get <strong>info</strong> of your dataset</div>
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="button_download_all">
+              <!-- Rich Tooltip-->
+              <div class="icon material-icons">get_app</div>
+              <div class="mdl-tooltip" data-mdl-for="button_download_all">Get <strong>All signatures </strong></div>
+            </button>
+          </div>
+        </div>
+        <div class="mdl-tabs__panel" id="forged-panel">
+          <div class="mdl-card__supporting-text mdl-card--border">
+            <form action="#"><a> Select a target and download signature to imitate (using auto-completion!) </a>
+              <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" id="input_target" type="text">
+                <label class="mdl-textfield__label" for="input_target">Target&apos;s Surname, First Name...  </label>
+              </div>
+              <div id="image_container" style="width: 100%; height: 100%;"><img id="sig-image" width="255" height="127" style="width: 100%;"></div>
+            </form>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="button_download_target">
+              <!-- Rich Tooltip-->
+              <div class="icon material-icons">get_app</div>
+              <div class="mdl-tooltip" data-mdl-for="button_download_target">Get <strong>signature  </strong></div>
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="button_upload_forged">
+              <!-- Rich Tooltip-->
+              <div class="icon material-icons">cloud_upload</div>
+              <div class="mdl-tooltip" data-mdl-for="button_upload_forged">Upload <strong>forged signature</strong></div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- End of tabs-->
+      <div class="mdl-card__supporting-text">
+        <div class="mdl-card__supporting-text"><a id="status"></a></div>
+        <div id="canvas_container" style="border: 1pt solid black; width: 100%;">
+          <canvas id="sig-canvas" width="255" height="127" style="width: 100%;"> </canvas>
+        </div>
+      </div>
+      <div class="mdl-card__actions">
+        <div>
+          <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="button_reset">
+            <div class="icon material-icons">delete</div><a> Clear Canvas     </a>
+          </button><span class="mdl-badge" id="badge_saved_count" data-badge="0">Saved</span>
+          <!--
+          <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+          <i class="icon material-icons">add</i>
+          <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
+          Add <strong>canvas</strong> (not implemented)
+          </div>
+          </button>
+          -->
+          <div>
+            <div id="container">
+              <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="button_save">
+                <div class="icon material-icons">assignment_returned       </div><a> Save Signatures to zip </a>
+              </button>
+            </div>
+            <!--
+            <div class="mdl-layout-spacer"></div>
+            <i class="material-icons">event</i> 
+            -->
+          </div>
+          <div class="mdl-js-snackbar mdl-snackbar" id="snack-toast">
+            <div class="mdl-snackbar__text"></div>
+            <button class="mdl-snackbar__action" type="button"></button>
+          </div>
+          <footer class="mdl-mini-footer">
+            <div class="mdl-mini-footer__left-section">
+              <div class="mdl-logo">COMP3314    </div>
+              <ul class="mdl-mini-footer__link-list">
+                <li><a href="tool/index.html" target="_blank">Tool      </a></li>
+                <li><a href="instruction/index.html" target="_blank">Instruction</a></li>
+              </ul>
+            </div>
+          </footer>
+        </div>
+        <!-- End of cards-->
+        <script>
 var saved = ['passphrase', 'name', 'sid', 'score', 'label', 'target'];
 function saveCookie(){
 	for(var i in saved){
@@ -895,12 +831,7 @@ $("#button_get_info").click(function(){
 }); // document ready
 //$(window).on('unload', onExit);
 </script>
-  
-	
-	
-	
-
-
-</body>
-
+      </div>
+    </div>
+  </body>
 </html>

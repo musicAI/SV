@@ -1,0 +1,145 @@
+doctype html
+html
+  head
+    title  Collect Data for Signature Verification 
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(rel='stylesheet', href='https://fonts.googleapis.com/icon?family=Material+Icons')
+    link(rel='stylesheet', href='https://code.getmdl.io/1.3.0/material.indigo-pink.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css')
+    script(src='https://code.getmdl.io/1.3.0/material.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js', integrity='sha384-lp4k1VRKPU9eBnPePjnJ9M2RF3i7PC30gXs70+elCVfgwLwx1tv5+ctxdtwxqZa7', crossorigin='anonymous')
+    script(src='https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.3/FileSaver.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js')
+    script(src='utils.js')
+    script(src='info.js')
+  body
+    .mdl-card.mdl-shadow--2dp
+      .mdl-card__title
+        h2.mdl-card__title-text Collect Data for Simple Signature Verification
+      //
+        <div class="mdl-card__media">
+        <img src="photo.jpg" width="220" height="140" border="0" alt="" style="padding:20px;">
+        </div>
+      .mdl-card__supporting-text.mdl-card--border
+        form(action='#')
+          a  To prevent abuse, input the passphrase posted on Moodle. 
+          .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+            input#input_passphrase.mdl-textfield__input(type='password')  
+            label.mdl-textfield__label(for='input_passphrase') Passphrase...
+          a  Create your genuine signature or forge others&apos;. 
+
+      .mdl-tabs.mdl-js-tabs.mdl-js-ripple-effect.mdl-card--border
+        .mdl-tabs__tab-bar
+          a.mdl-tabs__tab.is-active(href='#genuine-panel') Genuine    
+          a.mdl-tabs__tab(href='#forged-panel') Forged 
+        #genuine-panel.mdl-tabs__panel.is-active
+          .mdl-card__supporting-text.mdl-card--border
+            // Colored FAB button
+            form(action='#')
+              // <div class="">
+              a  Fill in your info below for authentication
+              // </div>
+              .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                input#input_name.mdl-textfield__input(type='text')   
+                label.mdl-textfield__label(for='input_name') Your Surname, First name...
+              // </form>
+              // Numeric Textfield with Floating Label
+              // <form action="#">
+              .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                input#input_sid.mdl-textfield__input(type='text', pattern='[0-9]*')  
+                label.mdl-textfield__label(for='input_sid') Student ID... 
+                span.mdl-textfield__error Input is not a valid ID!
+              // </form>
+              // Numeric Textfield with Floating Label
+              // <form action="#">
+              .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                input#input_score.mdl-textfield__input(type='text', pattern='[0-9]*(\.[0-9]*)?')  
+                label.mdl-textfield__label(for='input_score') Assignment 1 Score...  
+                span.mdl-textfield__error Input is not a number!
+              .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                input#input_label.mdl-textfield__input(type='text')   
+                label.mdl-textfield__label(for='input_label') Optional label...
+            // Accent-colored raised button with ripple
+            button#button_upload_genuine.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent
+              // Rich Tooltip
+              .icon.material-icons cloud_upload
+              .mdl-tooltip(data-mdl-for='button_upload_genuine')
+                | Upload 
+                strong genuine signature
+            button#button_get_info.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent
+              // Rich Tooltip
+              .icon.material-icons info
+              .mdl-tooltip(data-mdl-for='button_get_info')
+                | Get 
+                strong info
+                |  of your dataset
+            button#button_download_all.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent
+              // Rich Tooltip
+              .icon.material-icons get_app
+              .mdl-tooltip(data-mdl-for='button_download_all')
+                | Get 
+                strong All signatures 
+        #forged-panel.mdl-tabs__panel
+          .mdl-card__supporting-text.mdl-card--border
+            form(action='#')
+              a  Select a target and download signature to imitate (using auto-completion!) 
+              .mdl-textfield.mdl-js-textfield.mdl-textfield--floating-label
+                input#input_target.mdl-textfield__input(type='text')    
+                label.mdl-textfield__label(for='input_target') Target&apos;s Surname, First Name...  
+              #image_container(style='width: 100%; height: 100%;')
+                img#sig-image(width='255', height='127', style='width: 100%;')  
+            button#button_download_target.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent
+              // Rich Tooltip
+              .icon.material-icons get_app
+              .mdl-tooltip(data-mdl-for='button_download_target')
+                | Get 
+                strong signature  
+            button#button_upload_forged.mdl-button.mdl-js-button.mdl-button--raised.mdl-js-ripple-effect.mdl-button--accent
+              // Rich Tooltip
+              .icon.material-icons cloud_upload
+              .mdl-tooltip(data-mdl-for='button_upload_forged')
+                | Upload 
+                strong forged signature
+      // End of tabs
+      .mdl-card__supporting-text
+        .mdl-card__supporting-text
+          a#status
+
+        #canvas_container(style='border: 1pt solid black; width: 100%;')
+          canvas#sig-canvas(width='255', height='127', style='width: 100%;') 
+      .mdl-card__actions
+        div
+          button#button_reset.mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
+            .icon.material-icons delete
+            a  Clear Canvas     
+          span#badge_saved_count.mdl-badge(data-badge='0') Saved
+          //
+            <button id="button_add_canvas" class="mdl-button mdl-js-button mdl-button--fab mdl-button--colored">
+            <i class="icon material-icons">add</i>
+            <div class="mdl-tooltip" data-mdl-for="button_add_canvas">
+            Add <strong>canvas</strong> (not implemented)
+            </div>
+            </button>
+          div
+            #container
+              button#button_save.mdl-button.mdl-button--colored.mdl-js-button.mdl-js-ripple-effect
+                .icon.material-icons assignment_returned       
+                a  Save Signatures to zip 
+            //
+              <div class="mdl-layout-spacer"></div>
+              <i class="material-icons">event</i> 
+          #snack-toast.mdl-js-snackbar.mdl-snackbar
+            .mdl-snackbar__text
+            button.mdl-snackbar__action(type='button')
+          footer.mdl-mini-footer
+            .mdl-mini-footer__left-section
+              .mdl-logo COMP3314    
+              ul.mdl-mini-footer__link-list
+                li
+                  a(href='tool/index.html', target='_blank') Tool      
+                li
+                  a(href='instruction/index.html', target='_blank') Instruction
+        // End of cards
+        script(src='index.js')
