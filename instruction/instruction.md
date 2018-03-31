@@ -122,4 +122,10 @@ This section is ontinuously updated.
 
 
 
+**Q**: Why is the zip with all signatures missing recently submitted signatures?
+
+**A**: Normally the zip file will be updated on an hourly basis. Sometimes due to shortage of idle gitlab runners, the update may be postponed. Be patient and finish data collection as early as possible.
+
+
+
 You are welcome to email me if you have further questions or other suggestions.
