@@ -1,11 +1,17 @@
-index.html: collect.html index.js utils.js build.py build.js
-	@./build.js
-	@./build.py
+SECRET_DIR  =secret #
+
+index.html: collect.html index.js utils.js build.js info.js
+	@./build.js $@
 
 collect.html: collect.jade
 	@pug -P < $< > $@
 
+
+info.js: $(SECRET_DIR)
+	@./build.js $@
+
 .PHONY: test clean
+
 test:
 	@open index.html
 

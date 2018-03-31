@@ -31,6 +31,22 @@ function hash8(msg){
 	return CryptoJS.SHA256(msg).toString().substr(0, 8);
 }
 
+function insert_script(scripts, src, tgt){
+	var src = src || 'collect.html';
+	var tgt = tgt || 'index.html';
+	var html = catFile(src);
+	var scripts = scripts || ['utils', 'info', 'index'];
+	scripts.forEach(function(s){
+		var script = catFile(s + '.js');
+		html = html.replace(
+			'<script src="'+s+'.js"></script>', 
+			'<script>\n'+script+'\n</script>'
+			);
+
+	});
+	fs.writeFileSync(tgt, html);
+}
+
 function build(passphrase){
 	var passphrase = passphrase || catFile('secret/pass');
 	var enc = {};
@@ -58,7 +74,18 @@ function build(passphrase){
 }
 
 if (typeof require != 'undefined' && require.main == module) {
-    build();
+	if(process.argv.length > 2){
+		switch(process.argv[2]){
+			case 'info.js':
+				build();
+				break;
+			case 'index.html':
+				insert_script();
+				break;
+			default:
+				console.log('unknown: ' + process.argv[2]);
+		}
+	}
 }
 
 
