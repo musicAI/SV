@@ -1,11 +1,12 @@
 var saved = ['passphrase', 'name', 'sid', 'score', 'label', 'target'];
 
-function saveCookie() {
+function saveCookie(hrs) {
+    var hrs = hrs || 6; // default 6 hrs
     for (var i in saved) {
         var j = saved[i];
         var p = $('#input_' + j).val();
         if (!!p) {
-            setCookie(j, p, 6); // lasts 6 hrs
+            setCookie(j, p, hrs); 
         }
     }
     console.log('Cookies saved.');
@@ -22,18 +23,51 @@ function restoreCookie() {
     }
 }
 
-var name_list = {};
-var signature_list = {},
-    stroking_list = {}
-var forged_signature_list = {},
-    forged_stroking_list = {};
+var logger = new function() {
+    var ele = this.ele = $("#status");
+    var snack = this.snack = $("#snack-toast")[0];
+    console.log(ele[0], snack)
+    var _this = this;
+    this.log = function(msg) {
+        (arguments.length <= 1 && typeof msg == 'string') ?
+        //snack.MaterialSnackbar.showSnackbar({message: msg, timeout:5000}):
+        ele.html(msg):
+            console.log.apply(_this, arguments);
+    }
+    var errMsg = {
+        invalid_pass: 'Invalid passphrase!',
+        invalid_name: 'Invalid name, pls select from auto-completion!',
+        invalid_info: 'Incorrect information!!',
+        no_pass: 'Pls input passphrase first!'
+    }
+    var log = this.log;
+    for(var err in errMsg){
+        this[err] = (function(e){
+            return function(){
+                log(errMsg[e]);
+            };
+        })(err);
+    }
+    
+}
+
 var app = {
+    saved: saved,
+    vals: {},
+    passphrase: '',
     saved_count: 0,
-    names: name_list,
-    genuine_sig: signature_list,
-    genuine_stroke: stroking_list,
-    forged_sig: forged_signature_list,
-    forged_stroke: forged_stroking_list,
+    names: {},
+    genuine_sig: {},
+    genuine_stroke: {},
+    forged_sig: {},
+    forged_stroke: {},
+    val: function(v){
+        if(this.saved.indexOf(v) > -1){
+            return this.vals[v] = $('#input_'+v).val();
+        }else{
+            return '';
+        }
+    },
     labels: function() {
         return Object.keys(this.genuine_sig);
     },
@@ -49,31 +83,85 @@ var app = {
         if (!(label in this.genuine_sig)) {
             this.genuine_sig[label] = [];
             this.genuine_stroke[label] = [];
+        }else{
+            var pre = hash8(this.genuine_sig[label].slice(-1)[0]);
+            var cur = hash8(imgdata);
+            if(cur == pre){
+                return false;
+            }
         }
         this.genuine_sig[label].push(imgdata);
         this.genuine_stroke[label].push(stdata);
         this.saved_count++;
         this.badge.attr('data-badge', String(this.saved_count));
+        return true;
+    },
+    update: function(){
+        var passphrase = $("#input_passphrase").val().toUpperCase();
+        if(this.passphrase == passphrase){
+            return;
+        }
+        this.passphrase = passphrase;
+        //var secret_obj = 'info.json'; // stored in json
+        var secret_obj = static_info; // stored in js
+        var info = decrypt(static_info.secret, this.passphrase);
+        if(!info){
+            logger.invalid_pass();
+            static_info['dec'] = null;
+        }else{
+            info = JSON.parse(info);
+            static_info['dec'] = info;
+            if(!(this.passphrase in this.names)){
+                this.names[this.passphrase] = info.name;
+                logger.log('Correct passphrase!');
+                logger.log('students info loaded ', info.name.length);
+                    $("#input_name").autocomplete({
+                        source: info.name
+                    });
+                    $("#input_target").autocomplete({
+                        source: info.name
+                    });
+            }
+        }
+    },
+    validate_name: function(){
+        var student_name = $('#input_name').val();
+        if (this.names[this.passphrase].indexOf(student_name) < 0) {
+            logger.invalid_name();
+            return false;
+        }else{
+            return student_name;
+        }
+    },
+    validate_id: function(){
+        if(!static_info.dec){
+            logger.invalid_pass();
+            return false;
+        }
+        var student_name = this.validate_name();
+        if(!student_name){
+            return false;
+        }
+        var score = this.val('score');
+        if(!score){
+            score = 0;
+        }
+        var id = [student_name, $('#input_sid').val(),
+            (parseFloat(score) * 100) >> 0
+        ].join(';');
+        id = hash8(id);
+        if('check' in static_info.dec){
+            if(static_info.dec.check.indexOf(hash8(id)) < 0){
+                logger.invalid_info();
+                return false;
+            }
+        }
+        return id;
+
     }
 }
-var logger = new function() {
-    var ele = this.ele = $("#status");
-    var snack = this.snack = $("#snack-toast")[0];
-    console.log(ele[0], snack)
-    var _this = this;
-    this.log = function(msg) {
-        (arguments.length <= 1 && typeof msg == 'string') ?
-        //snack.MaterialSnackbar.showSnackbar({message: msg, timeout:5000}):
-        ele.html(msg):
-            console.log.apply(_this, arguments);
-    }
-    this.invalid_pass = function() {
-        this.log('Invalid passphrase!');
-    }
-    this.invalid_name = function() {
-        this.log('Invalid name, pls select from auto-completion!');
-    }
-}
+
+
 
 
 function initUI(canvas) {
@@ -92,9 +180,9 @@ function initUI(canvas) {
         var st = zip.folder("online");
         var n_img = 0;
 
-        for (var label in signature_list) {
-            signature_list[label].forEach(function(e, i, arr) {
-                var s = stroking_list[label][i];
+        for (var label in app.genuine_sig) {
+            app.genuine_sig[label].forEach(function(e, i, arr) {
+                var s = app.genuine_stroke[label][i];
                 var h = hash8(e);
                 img.file(h + '-' + label + '.png',
                     e.split('base64,')[1], {
@@ -132,27 +220,7 @@ function initUI(canvas) {
 
 var sel = selector();
 
-function update_namelist() {
-    var passphrase = $("#input_passphrase").val().toUpperCase();
-    //var secret_obj = 'info.json'; // stored in json
-    var secret_obj = static_info; // stored in js
-    if (passphrase && !(passphrase in name_list)) {
-        decrypt_secret(secret_obj, passphrase,
-            function(info) {
 
-                name_list[passphrase] = info.name || info.students.map(function(e) {
-                    return e[1] + ', ' + e[0]
-                });
-                logger.log('students info loaded', name_list[passphrase].length);
-                $("#input_name").autocomplete({
-                    source: name_list[passphrase]
-                });
-                $("#input_target").autocomplete({
-                    source: name_list[passphrase]
-                });
-            }); // auto-completion
-    }
-}
 
 
 
@@ -166,9 +234,9 @@ $(function() {
     ctx.lineJoin = 'round'
     initUI(canvas);
 
-    $("#input_passphrase").focusout(update_namelist)
-    $("#input_name").focus(update_namelist);
-    $("#input_target").focus(update_namelist);
+    $("#input_passphrase").focusout(function(){app.update()});
+    $("#input_name").focus(function(){app.update()});
+    $("#input_target").focus(function(){app.update});
 
 
     // source image mouse control
@@ -240,72 +308,58 @@ $(function() {
     });
     $("#button_reset").click(reset);
     $("#button_upload_genuine").click(function() {
-        var passphrase = $("#input_passphrase").val().toUpperCase();
-
-        var formId = decrypt(formId_enc, passphrase);
-        if (!formId) {
+        if(!static_info.dec){
             logger.invalid_pass();
             return;
         }
-        saveCookie();
-
-
-        var stamp = getStamp();
-        var score = $('#input_score').val();
-        if (!score) {
-            score = 0;
-        }
-        var label = $('#input_label').val();
-        update_namelist();
-        var student_name = $('#input_name').val();
-        if (name_list[passphrase].indexOf(student_name) < 0) {
-            logger.invalid_name();
+        var formId = static_info.dec.formId;
+        
+        var id = app.validate_id();
+        if(!id){
             return;
         }
-
-        var id = [student_name, $('#input_sid').val(),
-            (parseFloat(score) * 100) >> 0
-        ].join(';');
-        var id = CryptoJS.SHA256(id).toString().substr(0, 8) + label; //encrypt(id, passphrase);
+        var label = app.val('label');
+        var stamp = getStamp();
+        id = id + label; //encrypt(id, passphrase);
         logger.log('Saving and submitting data ...');
+        saveCookie();
         
 
         var stroke_data = sel.signature()
-            //stroking_list[label].push(stroke_data);
         var stroke_str = stroking_b64(stroke_data);
         console.log('stroke string length', stroke_str.length);
+        var image_data = canvas.toDataURL();
+        console.log('dataurl length', image_data.length);
+        if(!app.add_genuine(label, image_data, stroke_data)){
+            logger.log('Do not submit the same signature twice!!');
+            return;
+        }
+
         submit_one(formId, id, 'genuine-strokearray', stroke_str, stamp, function() {
             console.log('Genuine strokes submitted.', );
         });
-        var image_data = canvas.toDataURL();
-        console.log('dataurl length', image_data.length);
-        //signature_list[label].push(image_data);
+        
         submit_one(formId, id, 'genuine-dataurl', image_data, stamp, function() {
             logger.log('Genuine signature submitted.');
 
         });
-        app.add_genuine(label, image_data, stroke_data);
+        
 
     });
     $("#button_download_target").click(function() {
-        var passphrase = $("#input_passphrase").val().toUpperCase();
-
-        var sheetId = decrypt(sheetId_enc, passphrase);
-        if (!sheetId) {
-            //console.log('invalid passphrase!')
+        if(!static_info.dec){
             logger.invalid_pass();
             return;
         }
-        update_namelist();
+        var sheetId = static_info.dec.sheetId;
         var target_name = $('#input_target').val();
-        var row = name_list[passphrase].indexOf(target_name);
+        var row = app.names[app.passphrase].indexOf(target_name);
         if (row < 0) {
             logger.invalid_name();
             return;
         }
         saveCookie();
-        row += 1;
-        get_target(sheetId, row, 2, function(data) {
+        get_target(sheetId, row+1, 2, function(data) {
             // handle data
             var dataurl = data.entry.gs$cell.$t;
             if (dataurl.indexOf('base64') < 0) {
@@ -319,23 +373,21 @@ $(function() {
 
     });
     $("#button_upload_forged").click(function() {
-        var passphrase = $("#input_passphrase").val().toUpperCase();
-
-        var formId = decrypt(formId_enc, passphrase);
-        if (!formId) {
-            //console.log('invalid passphrase!')
-            logger.invalid_pass()
+        if(!static_info.dec){
+            logger.invalid_pass();
             return;
         }
-        var target_name = $('#input_target').val();
-        if (name_list[passphrase].indexOf(target_name) < 0) {
+
+        var formId = static_info.dec.formId;
+        var target_name = app.val('target');
+        if (app.names[app.passphrase].indexOf(target_name) < 0) {
             logger.invalid_name();
             return;
         }
         saveCookie();
 
         var stamp = getStamp();
-        var id = target_name + ';' + CryptoJS.SHA256($('#sig-image').attr('src')).toString().substr(0, 8); //encrypt(id, passphrase);
+        var id = target_name + ';' + hash8($('#sig-image').attr('src')); //encrypt(id, passphrase);
         logger.log('Submitting data ...');
 
         var stroke_data = sel.signature()
@@ -352,32 +404,22 @@ $(function() {
 
     });
     $("#button_download_all").click(function() {
-        var passphrase = $("#input_passphrase").val().toUpperCase();
-        var sheetId = decrypt(sheetId_enc, passphrase);
-        var urlprefix = decrypt(urlprefix_enc, passphrase);
-        if (!sheetId || !urlprefix) {
-            //console.log('invalid passphrase!')
+        if(!static_info.dec){
             logger.invalid_pass();
             return;
         }
-        update_namelist();
-        var student_name = $('#input_name').val();
-        if (name_list[passphrase].indexOf(student_name) < 0) {
-            logger.invalid_name();
+        var sheetId = static_info.dec.sheetId;
+        var urlprefix = static_info.dec.urlprefix;
+        var student_name = app.validate_name();
+        if(!student_name){
             return;
         }
-        var score = $('#input_score').val();
-        if (!score) {
-            score = 0;
+        var id = app.validate_id();
+        if(!id){
+            return;
         }
         saveCookie();
-
-        var id = [student_name, $('#input_sid').val(),
-            (parseFloat(score) * 100) >> 0
-        ].join(';');
-        id = CryptoJS.SHA256(id).toString().substr(0, 8);
-        var stamp = CryptoJS.SHA256(getStamp()).toString().substr(0, 8);
-
+        var stamp = hash8(getStamp());
 
         var zip_url = urlprefix + id + '/svdata_' +
             student_name.replace(/ /g, '_').replace(/,/g, '') + '.zip?t=' + stamp;
@@ -392,16 +434,13 @@ $(function() {
 
     });
     $("#button_get_info").click(function() {
-        var passphrase = $("#input_passphrase").val().toUpperCase();
-        var sheetId = decrypt(sheetId_enc, passphrase);
-        if (!sheetId) {
-            //console.log('invalid passphrase!')
+        if(!static_info.dec){
             logger.invalid_pass();
             return;
         }
-        update_namelist();
-        var student_name = $('#input_name').val();
-        var row = name_list[passphrase].indexOf(student_name);
+        var sheetId = static_info.dec.sheetId;
+        var student_name = app.val('name');
+        var row = app.names[app.passphrase].indexOf(student_name);
         if (row < 0) {
             logger.invalid_name();
             return;
@@ -421,16 +460,6 @@ $(function() {
             logger.log(genuine_count+' genuine + '+forged_count+' forged = ' + (genuine_count+forged_count)+' signatures');
 
         });
-        // get_target(sheetId, row, 1, function(data) {
-        //     // handle data
-        //     var genuine_count = parseInt(data.entry.gs$cell.$t);
-        //     get_target(sheetId, row, 3, function(data) {
-        //         var forged_count = parseInt(data.entry.gs$cell.$t);
-        //         logger.log((genuine_count + forged_count) + ' signatures, ' + genuine_count + ' genuine.');
-        //     });
-
-        // });
-
 
     });
 

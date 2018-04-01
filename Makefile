@@ -7,7 +7,7 @@ collect.html: collect.jade
 	@pug -P < $< > $@
 
 
-info.js: $(SECRET_DIR)
+info.js: $(SECRET_DIR) build.js
 	@./build.js $@
 
 .PHONY: test clean

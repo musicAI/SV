@@ -52,7 +52,7 @@ function build(passphrase){
 	var enc = {};
 	var dec = ['sheetId', 'formId', 'urlprefix'];
 	dec.forEach(function(i){
-		enc[i + '_enc'] = encrypt(catFile('secret/'+i), passphrase);
+		enc[i] = catFile('secret/'+i);
 	})
 	var df = catFile('secret/info.csv').split(/[\r\n]+/g).map(function(e){return e.split(',')});
 	var cols = df.shift();
@@ -63,13 +63,15 @@ function build(passphrase){
 		return hash8([name[i], x[2], 
       (parseFloat(x[4])*100)>>0].join(';'));
 	});
+	var check = hash.map(function(x){
+		return hash8(x);
+	}).sort();
+	enc = Object.assign(enc, {'hash': hash,'name': name, 'check':check});
+	var res = '';
 	var static_info = {
-		'secret': encrypt(JSON.stringify({'hash': hash,'name': name}), passphrase)
+		'secret': encrypt(JSON.stringify(enc), passphrase)
 	};
-	var res = 'var static_info = ' + JSON.stringify(static_info) + ';\n';
-	dec.forEach(function(i){
-		res += 'var '+i+'_enc = "' + enc[i+'_enc'] + '";\n';
-	});
+	res += 'var static_info = ' + JSON.stringify(static_info) + ';\n';
 	fs.writeFileSync('./info.js', res);
 }
 
