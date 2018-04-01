@@ -128,4 +128,10 @@ This section is ontinuously updated.
 
 
 
+**Q**: Why do the numbers of signatures obtained through the info button decrease sometimes?
+
+**A**: The numbers provided instantly may not be accurate due to race conditions caused by simultaneous submissions. Besides, we de-duplicate signatures when preparing the zip files, thus the actual numbers of collected signatures will also be revised periodically.
+
+
+
 You are welcome to email me if you have further questions or other suggestions.
