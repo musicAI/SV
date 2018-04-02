@@ -236,7 +236,7 @@ $(function() {
 
     $("#input_passphrase").focusout(function(){app.update()});
     $("#input_name").focus(function(){app.update()});
-    $("#input_target").focus(function(){app.update});
+    $("#input_target").focus(function(){app.update()});
 
 
     // source image mouse control
@@ -284,7 +284,9 @@ $(function() {
             start(e);
             move(e);
         },
-        'touchstart': start,
+        'touchstart': function(e){
+            start(e);
+        },
         'mousemove': move,
         'touchmove': function(e) {
             if (window.blockMenuHeaderScroll) {
