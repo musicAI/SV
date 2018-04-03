@@ -279,7 +279,8 @@ function initUI(canvas) {
 
 
 
-var sel = selector();
+var sel = null;
+var canvas = null;
 
 var button_clicks = {
     "reset": null,
@@ -444,7 +445,9 @@ var button_clicks = {
 
 
 window.onload = function() {
-    var canvas = document.getElementById('sig-canvas');
+    // global vars
+    sel = selector();
+    canvas = document.getElementById('sig-canvas');
     var ctx = canvas.getContext('2d');
     var scaling = parseFloat(canvas.getAttribute('width')) / parseFloat(canvas.offsetWidth);
     console.log('canvas scaling', scaling);
