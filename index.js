@@ -1,14 +1,14 @@
 
 
 var logger = new function() {
-    var ele = this.ele = $("#status");
-    var snack = this.snack = $("#snack-toast")[0];
-    console.log(ele[0], snack)
+    var ele = this.ele = document.querySelector('#status');
+    var snack = document.querySelector('#snack-toast');
+    //console.log(ele[0], snack)
     var _this = this;
     this.log = function(msg) {
         (arguments.length <= 1 && typeof msg == 'string') ?
         //snack.MaterialSnackbar.showSnackbar({message: msg, timeout:5000}):
-        ele.html(msg):
+        (ele.innerHTML = msg):
             console.log.apply(_this, arguments);
     }
     var errMsg = {
@@ -37,7 +37,8 @@ var app = {
         var eles = this.eles;
         this.saved.forEach(function(e,i){
             eles[e] = document.querySelector('#input_'+e);
-        })
+        });
+        this.badge = document.querySelector("#badge_saved_count");
 
     },
     saveCookie: function (hrs) {
@@ -69,6 +70,7 @@ var app = {
 
             }
         }
+        this.update();
     },
     passphrase: '',
     saved_count: 0,
@@ -79,7 +81,7 @@ var app = {
     forged_stroke: {},
     val: function(v){
         if(this.saved.indexOf(v) > -1){
-            return this.eles[v].value;//this.vals[v] = $('#input_'+v).val();
+            return this.eles[v].value;
         }else{
             return '';
         }
@@ -94,7 +96,7 @@ var app = {
             id: [label, i]
         }
     },
-    badge: $("#badge_saved_count"),
+    badge: null,
     add_genuine: function(label, imgdata, stdata) {
         if (!(label in this.genuine_sig)) {
             this.genuine_sig[label] = [];
@@ -109,11 +111,11 @@ var app = {
         this.genuine_sig[label].push(imgdata);
         this.genuine_stroke[label].push(stdata);
         this.saved_count++;
-        this.badge.attr('data-badge', String(this.saved_count));
+        this.badge.setAttribute('data-badge', this.saved_count);
         return true;
     },
     update: function(){
-        var passphrase = this.val('passphrase').toUpperCase();//$("#input_passphrase").val().toUpperCase();
+        var passphrase = this.val('passphrase').toUpperCase();
         if(this.passphrase == passphrase){
             return;
         }
@@ -129,19 +131,25 @@ var app = {
             static_info['dec'] = info;
             if(!(this.passphrase in this.names)){
                 this.names[this.passphrase] = info.name;
-                logger.log('Correct passphrase!');
+                logger.log('Correct passphrase.');
                 logger.log('students info loaded ', info.name.length);
+                try{
                     $("#input_name").autocomplete({
                         source: info.name
                     });
                     $("#input_target").autocomplete({
                         source: info.name
                     });
+                }catch(e){
+                    logger.log('Auto-completion not supported!!');
+                    return;
+                }
+                    
             }
         }
     },
     validate_name: function(){
-        var student_name = this.val('name');//$('#input_name').val();
+        var student_name = this.val('name');
         if (this.names[this.passphrase].indexOf(student_name) < 0) {
             logger.invalid_name();
             return false;
@@ -162,7 +170,7 @@ var app = {
         if(!score){
             score = 0;
         }
-        var id = [student_name, this.val('sid'), //$('#input_sid').val(),
+        var id = [student_name, this.val('sid'),
             (parseFloat(score) * 100) >> 0
         ].join(';');
         id = hash8(id);
@@ -174,6 +182,31 @@ var app = {
         }
         return id;
 
+    },
+    to_files: function(img_folder, json_folder){
+        var n_img = 0;
+
+        for (var label in this.genuine_sig) {
+            var images = this.genuine_sig[label], strokes = this.genuine_stroke[label];
+            n_img += images.length;
+            images.forEach(function(e, i, arr) {
+                var s = strokes[i];
+                var h = hash8(e);
+                img_folder.file(h + '-' + label + '.png',
+                    e.split('base64,')[1], {
+                        base64: true
+                    });
+                var arr = s.map(function(e) {
+                    return e.map(function(e) {
+                        return [e.x, e.y]
+                    })
+                });
+                var arr = JSON.stringify(arr);
+                json_folder.file(h + '-' + label + '.json', arr);
+            });
+
+        }
+        return n_img;
     }
 }
 
@@ -182,79 +215,243 @@ var app = {
 
 function initUI(canvas) {
     
+    
     app.init();
     app.restoreCookie();
+    register([app.eles.name, app.eles.target], {
+            'focus': function(){app.update()}
+        }
+    );
+
+    register(app.eles.passphrase, {
+        'focusout': function(){app.update()}
+    });    
     // var button = document.createElement('button');
     // var textNode = document.createTextNode('Save Signature!');
     // button.appendChild(textNode);
     // button.className = 'mdl-button mdl-js-button mdl-js-ripple-effect';
     // componentHandler.upgradeElement(button);
     // document.getElementById('container').appendChild(button);
-    var button = "#button_save";
-    $(button).click(function() {
-        var zip = new JSZip();
-        zip.file("Readme.txt", "images of signatures (named by hash-label) stored in offline/, size 256x128, PNG format\ntime series of strokes stored in online/, 3-D arrays");
-        var img = zip.folder("offline");
-        var st = zip.folder("online");
-        var n_img = 0;
+    var button = document.querySelector("#button_save");
+    register(button, {
+        'click': function() {
+            var zip = new JSZip();
+            zip.file("Readme.txt", "images of signatures (named by hash-label) stored in offline/, size 256x128, PNG format\ntime series of strokes stored in online/, 3-D arrays");
+            var img = zip.folder("offline");
+            var st = zip.folder("online");
+            var n_img = app.to_files(img, st);
 
-        for (var label in app.genuine_sig) {
-            app.genuine_sig[label].forEach(function(e, i, arr) {
-                var s = app.genuine_stroke[label][i];
-                var h = hash8(e);
-                img.file(h + '-' + label + '.png',
-                    e.split('base64,')[1], {
-                        base64: true
-                    });
-                n_img++;
-                var arr = s.map(function(e) {
-                    return e.map(function(e) {
-                        return [e.x, e.y]
-                    })
+            // for (var label in app.genuine_sig) {
+            //     app.genuine_sig[label].forEach(function(e, i, arr) {
+            //         var s = app.genuine_stroke[label][i];
+            //         var h = hash8(e);
+            //         img.file(h + '-' + label + '.png',
+            //             e.split('base64,')[1], {
+            //                 base64: true
+            //             });
+            //         n_img++;
+            //         var arr = s.map(function(e) {
+            //             return e.map(function(e) {
+            //                 return [e.x, e.y]
+            //             })
+            //         });
+            //         var arr = JSON.stringify(arr);
+            //         st.file(h + '-' + label + '.json', arr);
+            //     });
+
+            // }
+            if (n_img == 0) {
+                logger.log('No uploaded signature to save in this session!');
+                return;
+            }
+
+            zip.generateAsync({
+                    type: "blob"
+                })
+                .then(function(content) {
+                    // see FileSaver.js
+                    saveAs(content, "Genuine.zip");
+                    logger.log(n_img + ' signatures saved to zip.');
                 });
-                var arr = JSON.stringify(arr);
-                st.file(h + '-' + label + '.json', arr);
-            });
-
         }
-        if (n_img == 0) {
-            logger.log('No uploaded signature to save in this session!');
-            return;
-        }
-
-        zip.generateAsync({
-                type: "blob"
-            })
-            .then(function(content) {
-                // see FileSaver.js
-                saveAs(content, "Genuine.zip");
-                logger.log(n_img + ' signatures saved to zip.');
-            });
     });
-
 }
 
 
 
 var sel = selector();
 
+var button_clicks = {
+    "reset": null,
+    "upload_genuine": function() {
+        if(!static_info.dec){
+            logger.invalid_pass();
+            return;
+        }
+        var formId = static_info.dec.formId;
+        
+        var id = app.validate_id();
+        if(!id){
+            return;
+        }
+        var label = app.val('label');
+        var stamp = getStamp();
+        id = id + label; //encrypt(id, passphrase);
+        logger.log('Saving and submitting data ...');
+        app.saveCookie();
+        
+
+        var stroke_data = sel.signature()
+        var stroke_str = stroking_b64(stroke_data);
+        console.log('stroke string length', stroke_str.length);
+        var image_data = canvas.toDataURL();
+        console.log('dataurl length', image_data.length);
+        if(!app.add_genuine(label, image_data, stroke_data)){
+            logger.log('Do not submit the same signature twice!!');
+            return;
+        }
+
+        submit_one(formId, id, 'genuine-strokearray', stroke_str, stamp, function() {
+            console.log('Genuine strokes submitted.', );
+        });
+        
+        submit_one(formId, id, 'genuine-dataurl', image_data, stamp, function() {
+            logger.log('Genuine signature submitted.');
+
+        });
+    },
+    "download_target": function() {
+        if(!static_info.dec){
+            logger.invalid_pass();
+            return;
+        }
+        var sheetId = static_info.dec.sheetId;
+        var target_name = app.val('target');//$('#input_target').val();
+        var row = app.names[app.passphrase].indexOf(target_name);
+        if (row < 0) {
+            logger.invalid_name();
+            return;
+        }
+        app.saveCookie();
+        get_target(sheetId, row+1, 2, function(data) {
+            // handle data
+            var dataurl = data.entry.gs$cell.$t;
+            if (dataurl.indexOf('base64') < 0) {
+                logger.log("No signature to imitate");
+                $("#sig-image").attr('src', '');
+                return;
+            }
+            $("#sig-image").attr('src', dataurl);
+            logger.log('Target signature downloaded!');
+        });
+
+    },
+    "upload_forged": function() {
+        if(!static_info.dec){
+            logger.invalid_pass();
+            return;
+        }
+
+        var formId = static_info.dec.formId;
+        var target_name = app.val('target');
+        if (app.names[app.passphrase].indexOf(target_name) < 0) {
+            logger.invalid_name();
+            return;
+        }
+        app.saveCookie();
+
+        var stamp = getStamp();
+        var id = target_name + ';' + hash8($('#sig-image').attr('src')); //encrypt(id, passphrase);
+        logger.log('Submitting data ...');
+
+        var stroke_data = sel.signature()
+        var stroke_str = stroking_b64(stroke_data);
+        console.log('stroke string length', stroke_str.length);
+        submit_one(formId, id, 'forged-strokearray', stroke_str, stamp, function() {
+            console.log('Forged strokes submitted.');
+        });
+        var image_data = canvas.toDataURL();
+        console.log('dataurl length', image_data.length);
+        submit_one(formId, id, 'forged-dataurl', image_data, stamp, function() {
+            logger.log('Forged signature submitted.');
+        });
+
+    },
+    "download_all": function() {
+        if(!static_info.dec){
+            logger.invalid_pass();
+            return;
+        }
+        var sheetId = static_info.dec.sheetId;
+        var urlprefix = static_info.dec.urlprefix;
+        var student_name = app.validate_name();
+        if(!student_name){
+            return;
+        }
+        var id = app.validate_id();
+        if(!id){
+            return;
+        }
+        app.saveCookie();
+        var stamp = hash8(getStamp());
+
+        var zip_url = urlprefix + id + '/svdata_' +
+            student_name.replace(/ /g, '_').replace(/,/g, '') + '.zip?t=' + stamp;
+        //console.log(zip_url)
+        get_json(urlprefix + 'date', function(data) {
+            logger.log('Zip updated at ' + new Date(data));
+        }, function(e) {
+            logger.log('Failed to download all signatures')
+        });
+        window.open(zip_url, '_blank');
+
+
+    },
+    "get_info": function() {
+        if(!static_info.dec){
+            logger.invalid_pass();
+            return;
+        }
+        var sheetId = static_info.dec.sheetId;
+        var student_name = app.val('name');
+        var row = app.names[app.passphrase].indexOf(student_name);
+        if (row < 0) {
+            logger.invalid_name();
+            return;
+        }
+        app.saveCookie();
+        row += 1;
+        parallel([
+            function(func){
+                get_target(sheetId, row, 1, func);
+            },
+            function(func){
+                get_target(sheetId, row, 3, func);
+            }
+        ], function(data){
+            var genuine_count = parseInt(data[0].entry.gs$cell.$t);
+            var forged_count = parseInt(data[1].entry.gs$cell.$t);
+            logger.log(genuine_count+' genuine + '+forged_count+' forged = ' + (genuine_count+forged_count)+' signatures');
+
+        });
+
+    }
 
 
 
+}
 
-$(function() {
+
+
+window.onload = function() {
     var canvas = document.getElementById('sig-canvas');
     var ctx = canvas.getContext('2d');
-    var scaling = parseFloat($(canvas).attr('width')) / parseFloat($(canvas).css('width'));
+    var scaling = parseFloat(canvas.getAttribute('width')) / parseFloat(canvas.offsetWidth);
     console.log('canvas scaling', scaling);
     ctx.strokeStyle = 'blue';
     ctx.lineWidth = 2;
-    ctx.lineJoin = 'round'
+    ctx.lineJoin = 'round';
     initUI(canvas);
-
-    $("#input_passphrase").focusout(function(){app.update()});
-    $("#input_name").focus(function(){app.update()});
-    $("#input_target").focus(function(){app.update()});
 
 
     // source image mouse control
@@ -326,162 +523,14 @@ $(function() {
             reset();
         }
     });
-    $("#button_reset").click(reset);
-    $("#button_upload_genuine").click(function() {
-        if(!static_info.dec){
-            logger.invalid_pass();
-            return;
-        }
-        var formId = static_info.dec.formId;
-        
-        var id = app.validate_id();
-        if(!id){
-            return;
-        }
-        var label = app.val('label');
-        var stamp = getStamp();
-        id = id + label; //encrypt(id, passphrase);
-        logger.log('Saving and submitting data ...');
-        app.saveCookie();
-        
+    button_clicks['reset'] = function(e){
+        reset();
+    }
 
-        var stroke_data = sel.signature()
-        var stroke_str = stroking_b64(stroke_data);
-        console.log('stroke string length', stroke_str.length);
-        var image_data = canvas.toDataURL();
-        console.log('dataurl length', image_data.length);
-        if(!app.add_genuine(label, image_data, stroke_data)){
-            logger.log('Do not submit the same signature twice!!');
-            return;
-        }
+    for(var cmd in button_clicks){
+        var ev = document.querySelector('#button_' + cmd);
+        ev.addEventListener('click', button_clicks[cmd]);
+    }
 
-        submit_one(formId, id, 'genuine-strokearray', stroke_str, stamp, function() {
-            console.log('Genuine strokes submitted.', );
-        });
-        
-        submit_one(formId, id, 'genuine-dataurl', image_data, stamp, function() {
-            logger.log('Genuine signature submitted.');
-
-        });
-        
-
-    });
-    $("#button_download_target").click(function() {
-        if(!static_info.dec){
-            logger.invalid_pass();
-            return;
-        }
-        var sheetId = static_info.dec.sheetId;
-        var target_name = app.val('target');//$('#input_target').val();
-        var row = app.names[app.passphrase].indexOf(target_name);
-        if (row < 0) {
-            logger.invalid_name();
-            return;
-        }
-        app.saveCookie();
-        get_target(sheetId, row+1, 2, function(data) {
-            // handle data
-            var dataurl = data.entry.gs$cell.$t;
-            if (dataurl.indexOf('base64') < 0) {
-                logger.log("No signature to imitate");
-                $("#sig-image").attr('src', '');
-                return;
-            }
-            $("#sig-image").attr('src', dataurl);
-            logger.log('Target signature downloaded!');
-        });
-
-    });
-    $("#button_upload_forged").click(function() {
-        if(!static_info.dec){
-            logger.invalid_pass();
-            return;
-        }
-
-        var formId = static_info.dec.formId;
-        var target_name = app.val('target');
-        if (app.names[app.passphrase].indexOf(target_name) < 0) {
-            logger.invalid_name();
-            return;
-        }
-        app.saveCookie();
-
-        var stamp = getStamp();
-        var id = target_name + ';' + hash8($('#sig-image').attr('src')); //encrypt(id, passphrase);
-        logger.log('Submitting data ...');
-
-        var stroke_data = sel.signature()
-        var stroke_str = stroking_b64(stroke_data);
-        console.log('stroke string length', stroke_str.length);
-        submit_one(formId, id, 'forged-strokearray', stroke_str, stamp, function() {
-            console.log('Forged strokes submitted.');
-        });
-        var image_data = canvas.toDataURL();
-        console.log('dataurl length', image_data.length);
-        submit_one(formId, id, 'forged-dataurl', image_data, stamp, function() {
-            logger.log('Forged signature submitted.');
-        });
-
-    });
-    $("#button_download_all").click(function() {
-        if(!static_info.dec){
-            logger.invalid_pass();
-            return;
-        }
-        var sheetId = static_info.dec.sheetId;
-        var urlprefix = static_info.dec.urlprefix;
-        var student_name = app.validate_name();
-        if(!student_name){
-            return;
-        }
-        var id = app.validate_id();
-        if(!id){
-            return;
-        }
-        app.saveCookie();
-        var stamp = hash8(getStamp());
-
-        var zip_url = urlprefix + id + '/svdata_' +
-            student_name.replace(/ /g, '_').replace(/,/g, '') + '.zip?t=' + stamp;
-        //console.log(zip_url)
-        get_json(urlprefix + 'date', function(data) {
-            logger.log('Zip updated at ' + new Date(data));
-        }, function(e) {
-            logger.log('Failed to download all signatures')
-        });
-        window.open(zip_url, '_blank');
-
-
-    });
-    $("#button_get_info").click(function() {
-        if(!static_info.dec){
-            logger.invalid_pass();
-            return;
-        }
-        var sheetId = static_info.dec.sheetId;
-        var student_name = app.val('name');
-        var row = app.names[app.passphrase].indexOf(student_name);
-        if (row < 0) {
-            logger.invalid_name();
-            return;
-        }
-        app.saveCookie();
-        row += 1;
-        parallel([
-            function(func){
-                get_target(sheetId, row, 1, func);
-            },
-            function(func){
-                get_target(sheetId, row, 3, func);
-            }
-        ], function(data){
-            var genuine_count = parseInt(data[0].entry.gs$cell.$t);
-            var forged_count = parseInt(data[1].entry.gs$cell.$t);
-            logger.log(genuine_count+' genuine + '+forged_count+' forged = ' + (genuine_count+forged_count)+' signatures');
-
-        });
-
-    });
-
-}); // document ready
+}; // document ready
 //$(window).on('unload', onExit);

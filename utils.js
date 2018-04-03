@@ -178,10 +178,15 @@ function get_target(sheetId, row, column, handle){
   return get_json(geturl, handle);
 }
 
-function register(el, evts){
-	for(var type in evts){
-	  el.addEventListener(type, evts[type]);
-	}
+function register(els, evts){
+  if(!Array.isArray(els)){
+    els = [els];
+  }
+  els.forEach(function(el){
+    for(var type in evts){
+      el.addEventListener(type, evts[type]);
+    }
+  });
 }
 
 function selector(){
