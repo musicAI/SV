@@ -60,7 +60,7 @@ The zip file also contains a sequence of strokes (arrays of $(x,y)$ coordinates)
 
 Recently, we add a download button next to the info button for you to download all uploaded data (with .csv files containing labels and timestamps). These files are updated on an hourly basis (later we may also include normalized data, currently you can use [sample code](https://musicai.github.io/SV/tool/index.html) for image processing and data normalization)
 
-![](/Coding/WEBS/SV/instruction/s6.png)
+![](s6.png)
 
 
 
@@ -118,7 +118,13 @@ This section is ontinuously updated.
 
 **Q**: What is in the zip file after I download all signatures?
 
-**A**: All the `png` and `json` files uploaded will be placed under the directory `original/`, and `png.csv` and `json.csv` contains meta info of the dataset such as `signature_id`, `label`, `time_stamp`, `type` (genuine or forged), etc. For genuine signatures, `label` may be empty if you did not specify when uploaded them. For forged signature, `label` is the `signature_id` of referenced genuine signature. Invalid `signature_id` like `e3b0c442` and `eb045d78` just stand for empty signatures (the imposters may randomly draw something without downloading your genuine signature for reference).
+**A**: All the `png` and `json` files uploaded will be placed under the directory `original/`, and `png.csv` and `json.csv` contains summary information of the dataset such as `signature_id`, `label`, `time_stamp`, `type` (genuine or forged), etc. For genuine signatures, `label` may be empty if you did not specify when uploaded them. For forged signature, `label` is the `signature_id` of referenced genuine signature, where the invalid `signature_id` like `e3b0c442` and `eb045d78` just stand for empty signatures (the imposters may randomly draw something without downloading your genuine signature for reference).
+
+
+
+**Q**: Why is the same `signature_id` used in different rows in the summary csv file?
+
+**A**: The `signature_id` is the hash value of the dataurl  of the signature png file, serving as a unique identifier for signature image. If you upload the same signatures multiple times (e.g., applying different labels), there may be multiple rows and png (json) file using the same `signature_id`.
 
 
 
@@ -131,6 +137,14 @@ This section is ontinuously updated.
 **Q**: Why do the numbers of signatures obtained through the info button decrease sometimes?
 
 **A**: The numbers provided instantly may not be accurate due to race conditions caused by simultaneous submissions. Besides, we de-duplicate signatures when preparing the zip files, thus the actual numbers of collected signatures will also be revised periodically.
+
+
+
+**Q**: Can I know the signatures are collected from mobile devices (using touch screen) or from desktops (using mouse or touchpad)?
+
+**A**: We do not provide device information in the summary csv file. But for signatures collected through touch screen, the array for each stroke in the json files will always start with `[0,0]`. You may use such additional information to filter out signatures collected from mobile devices, which tend to have higher quality than those collected from desktop.
+
+
 
 
 
