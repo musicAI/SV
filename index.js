@@ -1,27 +1,4 @@
-var saved = ['passphrase', 'name', 'sid', 'score', 'label', 'target'];
 
-function saveCookie(hrs) {
-    var hrs = hrs || 6; // default 6 hrs
-    for (var i in saved) {
-        var j = saved[i];
-        var p = $('#input_' + j).val();
-        if (!!p) {
-            setCookie(j, p, hrs); 
-        }
-    }
-    console.log('Cookies saved.');
-}
-
-function restoreCookie() {
-    for (var i in saved) {
-        var j = saved[i];
-        var p = getCookie(j);
-        //console.log(j, p);
-        if (!!p) {
-            $('#input_' + j).val(p);
-        }
-    }
-}
 
 var logger = new function() {
     var ele = this.ele = $("#status");
@@ -51,9 +28,48 @@ var logger = new function() {
     
 }
 
+
 var app = {
-    saved: saved,
+    saved: ['passphrase', 'name', 'sid', 'score', 'label', 'target'],
     vals: {},
+    eles: {},
+    init: function(){
+        var eles = this.eles;
+        this.saved.forEach(function(e,i){
+            eles[e] = document.querySelector('#input_'+e);
+        })
+
+    },
+    saveCookie: function (hrs) {
+        var hrs = hrs || 6; // default 6 hrs
+        var obj = {};
+        for (var i in this.saved) {
+            var j = this.saved[i];
+            obj[j] = this.val(j);
+        }
+        setCookie('b64inputs', btoa(JSON.stringify(obj)), hrs);
+        console.log('Cookies saved.');
+    },
+    restoreCookie: function () {
+        var b64inputs = getCookie('b64inputs');
+        if(!b64inputs){
+            return;
+        }
+        var obj;
+        try{
+            obj = JSON.parse(atob(b64inputs)); 
+        }catch(e){
+            logger.log('Invalid cookies!');
+            return;
+        }
+        for (var i in this.saved) {
+            var j = this.saved[i];
+            if(!!obj[j]){
+                this.eles[j].value = obj[j]
+
+            }
+        }
+    },
     passphrase: '',
     saved_count: 0,
     names: {},
@@ -63,7 +79,7 @@ var app = {
     forged_stroke: {},
     val: function(v){
         if(this.saved.indexOf(v) > -1){
-            return this.vals[v] = $('#input_'+v).val();
+            return this.eles[v].value;//this.vals[v] = $('#input_'+v).val();
         }else{
             return '';
         }
@@ -97,7 +113,7 @@ var app = {
         return true;
     },
     update: function(){
-        var passphrase = $("#input_passphrase").val().toUpperCase();
+        var passphrase = this.val('passphrase').toUpperCase();//$("#input_passphrase").val().toUpperCase();
         if(this.passphrase == passphrase){
             return;
         }
@@ -125,7 +141,7 @@ var app = {
         }
     },
     validate_name: function(){
-        var student_name = $('#input_name').val();
+        var student_name = this.val('name');//$('#input_name').val();
         if (this.names[this.passphrase].indexOf(student_name) < 0) {
             logger.invalid_name();
             return false;
@@ -146,7 +162,7 @@ var app = {
         if(!score){
             score = 0;
         }
-        var id = [student_name, $('#input_sid').val(),
+        var id = [student_name, this.val('sid'), //$('#input_sid').val(),
             (parseFloat(score) * 100) >> 0
         ].join(';');
         id = hash8(id);
@@ -165,7 +181,9 @@ var app = {
 
 
 function initUI(canvas) {
-    restoreCookie();
+    
+    app.init();
+    app.restoreCookie();
     // var button = document.createElement('button');
     // var textNode = document.createTextNode('Save Signature!');
     // button.appendChild(textNode);
@@ -324,7 +342,7 @@ $(function() {
         var stamp = getStamp();
         id = id + label; //encrypt(id, passphrase);
         logger.log('Saving and submitting data ...');
-        saveCookie();
+        app.saveCookie();
         
 
         var stroke_data = sel.signature()
@@ -354,13 +372,13 @@ $(function() {
             return;
         }
         var sheetId = static_info.dec.sheetId;
-        var target_name = $('#input_target').val();
+        var target_name = app.val('target');//$('#input_target').val();
         var row = app.names[app.passphrase].indexOf(target_name);
         if (row < 0) {
             logger.invalid_name();
             return;
         }
-        saveCookie();
+        app.saveCookie();
         get_target(sheetId, row+1, 2, function(data) {
             // handle data
             var dataurl = data.entry.gs$cell.$t;
@@ -386,7 +404,7 @@ $(function() {
             logger.invalid_name();
             return;
         }
-        saveCookie();
+        app.saveCookie();
 
         var stamp = getStamp();
         var id = target_name + ';' + hash8($('#sig-image').attr('src')); //encrypt(id, passphrase);
@@ -420,7 +438,7 @@ $(function() {
         if(!id){
             return;
         }
-        saveCookie();
+        app.saveCookie();
         var stamp = hash8(getStamp());
 
         var zip_url = urlprefix + id + '/svdata_' +
@@ -447,7 +465,7 @@ $(function() {
             logger.invalid_name();
             return;
         }
-        saveCookie();
+        app.saveCookie();
         row += 1;
         parallel([
             function(func){
