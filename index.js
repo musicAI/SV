@@ -1,6 +1,4 @@
-
-
-var logger = new function() {
+function Logger() {
     var ele = this.ele = document.querySelector('#status');
     var snack = document.querySelector('#snack-toast');
     //console.log(ele[0], snack)
@@ -27,6 +25,8 @@ var logger = new function() {
     }
     
 }
+
+var logger = new Logger();
 
 
 var app = {
@@ -312,7 +312,7 @@ var button_clicks = {
         }
 
         submit_one(formId, id, 'genuine-strokearray', stroke_str, stamp, function() {
-            console.log('Genuine strokes submitted.', );
+            console.log('Genuine strokes submitted.');
         });
         
         submit_one(formId, id, 'genuine-dataurl', image_data, stamp, function() {
@@ -326,7 +326,7 @@ var button_clicks = {
             return;
         }
         var sheetId = static_info.dec.sheetId;
-        var target_name = app.val('target');//$('#input_target').val();
+        var target_name = app.val('target');
         var row = app.names[app.passphrase].indexOf(target_name);
         if (row < 0) {
             logger.invalid_name();
@@ -508,7 +508,7 @@ window.onload = function() {
                 e.preventDefault();
             }
             var touch = e.targetTouches[0];
-            //$("#status").html([touch.clientX>>0, touch.pageX>>0, touch.clientY>>0, touch.pageY>>0].join(','));
+            //logger.log([touch.clientX>>0, touch.pageX>>0, touch.clientY>>0, touch.pageY>>0].join(','));
             var mouseEvent = new MouseEvent("mousemove", {
                 clientX: touch.pageX,
                 clientY: touch.pageY
