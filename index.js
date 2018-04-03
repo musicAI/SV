@@ -20,6 +20,8 @@ function Logger() {
         this[err] = (function(e){
             return function(){
                 log(errMsg[e]);
+                //$.notify(errMsg[e], 'warn');
+                //toastr['warning'](errMsg[e]);
             };
         })(err);
     }
