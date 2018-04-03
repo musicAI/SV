@@ -66,7 +66,7 @@ function build(passphrase){
 	var check = hash.map(function(x){
 		return hash8(x);
 	}).sort();
-	enc = Object.assign(enc, {'hash': hash,'name': name, 'check':check});
+	enc = Object.assign(enc, {'name': name, 'check':check});
 	var res = '';
 	var static_info = {
 		'secret': encrypt(JSON.stringify(enc), passphrase)
